@@ -19,7 +19,10 @@ main(int argc, char *argv[])
 	SSL_CTX *ctx;
 	SSL *ssl;
 	BIO *bio;
+	SSL_SESSION *session;
+	int error;
 
+	SSL_library_init();
 	SSL_load_error_strings();
 
 	/* setup method and context */
@@ -29,9 +32,6 @@ main(int argc, char *argv[])
 	ctx = SSL_CTX_new(method);
 	if (ctx == NULL)
 		err_ssl(1, "SSL_CTX_new");
-	ssl = SSL_new(ctx);
-	if (ssl == NULL)
-		err_ssl(1, "SSL_new");
 
 	/* load server certificate */
 	if (SSL_CTX_use_certificate_file(ctx, "127.0.0.1.crt",
@@ -45,21 +45,40 @@ main(int argc, char *argv[])
 
 	print_ciphers(SSL_CTX_get_ciphers(ctx));
 
+	/* setup ssl and bio for socket operations */
+	ssl = SSL_new(ctx);
+	if (ssl == NULL)
+		err_ssl(1, "SSL_new");
 	bio = BIO_new_accept("127.0.0.1:12345");
 	if (bio == NULL)
 		err_ssl(1, "BIO_new_accept");
+	SSL_set_bio(ssl, bio, bio);
+
+	/* bind, listen, accept */
 	if (BIO_do_accept(bio) <= 0)
 		err_ssl(1, "BIO_do_accept setup");
 	print_sockname(bio);
 	if (BIO_do_accept(bio) <= 0)
 		err_ssl(1, "BIO_do_accept wait");
 
-	SSL_set_bio(ssl, bio, bio);
-	if (SSL_accept(ssl) <= 0)
-		err_ssl(1, "SSL_accept");
+	/* do ssl server handshake */
+	if ((error = SSL_accept(ssl)) <= 0)
+		err_ssl(1, "SSL_accept %d", error);
 
-	if (BIO_free(bio) <= 0)
-		err_ssl(1, "BIO_free");
+	/* print session statistics */
+	session = SSL_get_session(ssl);
+	if (session == NULL)
+		err_ssl(1, "SSL_get_session");
+	if (SSL_SESSION_print_fp(stdout, session) <= 0)
+		err_ssl(1, "SSL_SESSION_print_fp");
+
+	/* shutdown connection */
+	if ((error = SSL_shutdown(ssl)) < 0)
+		err_ssl(1, "SSL_shutdown unidirectional %d", error);
+	if ((error = SSL_shutdown(ssl)) <= 0)
+		err_ssl(1, "SSL_shutdown bidirectional %d", error);
+
+	/* cleanup and free resources */
 	SSL_free(ssl);
 	SSL_CTX_free(ctx);
 
@@ -70,10 +89,10 @@ void
 print_ciphers(STACK_OF(SSL_CIPHER) *cstack)
 {
 	SSL_CIPHER *cipher;
+	int i;
 
-	while ((cipher = sk_SSL_CIPHER_pop(cstack)) != NULL) {
-		printf("%s\n", SSL_CIPHER_get_name(cipher));
-	}
+	for (i = 0; (cipher = sk_SSL_CIPHER_value(cstack, i)) != NULL; i++)
+		printf("cipher %s\n", SSL_CIPHER_get_name(cipher));
 }
 
 void
