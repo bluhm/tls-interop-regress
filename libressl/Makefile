@@ -1,6 +1,6 @@
 # $OpenBSD$
 
-PROG =			ssl_server
+PROG =			server
 CPPFLAGS =
 LDFLAGS =
 LDADD =			-lssl -lcrypto

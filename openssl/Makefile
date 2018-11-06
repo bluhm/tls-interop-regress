@@ -6,7 +6,7 @@ regress:
 	@echo SKIPPED
 .endif
 
-PROG =			ssl_server
+PROG =			server
 CPPFLAGS =		-I /usr/local/include/eopenssl
 LDFLAGS =		-L /usr/local/lib/eopenssl
 LDADD =			-lssl -lcrypto

@@ -2,8 +2,8 @@
 
 .PATH:			${.CURDIR}/..
 
-PROG =			ssl_server
-SRCS =			ssl_server.c
+PROG =			server
+SRCS =			server.c
 LDADD =			-lssl -lcrypto
 DPADD ?=		${LIBSSL} ${LIBCRYPTO}
 WARNINGS =		yes
@@ -21,7 +21,7 @@ ldd-${PROG}.out: ${PROG}
 CLEANFILES +=		server.out client.out
 REGRESS_TARGETS +=	run-regress-${PROG}
 run-regress-${PROG}: ${PROG} 127.0.0.1.crt
-	LD_LIBRARY_PATH=${LD_LIBRARY_PATH} ./ssl_server >server.out
+	LD_LIBRARY_PATH=${LD_LIBRARY_PATH} ./server >server.out
 	echo "hello" | nc -c -T noverify\
 	    `sed -n 's/listen sock: //p' server.out`\
 	    >client.out
@@ -37,4 +37,4 @@ run-regress-${PROG}: ${PROG} 127.0.0.1.crt
 CLEANFILES +=		127.0.0.1.crt 127.0.0.1.key
 
 127.0.0.1.crt:
-	openssl req -batch -new -subj /L=OpenBSD/O=tls-regress/OU=ssl_server/CN=127.0.0.1/ -nodes -newkey rsa -keyout 127.0.0.1.key -x509 -out $@
+	openssl req -batch -new -subj /L=OpenBSD/O=tls-regress/OU=server/CN=127.0.0.1/ -nodes -newkey rsa -keyout 127.0.0.1.key -x509 -out $@
