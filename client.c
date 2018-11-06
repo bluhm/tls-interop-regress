@@ -34,7 +34,7 @@ void err_ssl(int, const char *, ...);
 void __dead
 usage(void)
 {
-	fprintf(stderr, "usage: server [host port]");
+	fprintf(stderr, "usage: client host port");
 	exit(2);
 }
 
@@ -48,70 +48,48 @@ main(int argc, char *argv[])
 	SSL_SESSION *session;
 	int error;
 	char buf[256];
-	char *crt, *key, *host_port, *host = "127.0.0.1", *port = "0";
+	char *host_port, *host, *port;
 
 	if (argc == 3) {
 		host = argv[1];
 		port = argv[2];
-	} else if (argc != 1) {
+	} else {
 		usage();
 	}
 	if (asprintf(&host_port, strchr(host, ':') ? "[%s]:%s" : "%s:%s",
 	    host, port) == -1)
 		err(1, "asprintf host port");
-	if (asprintf(&crt, "%s.crt", host) == -1)
-		err(1, "asprintf crt");
-	if (asprintf(&key, "%s.key", host) == -1)
-		err(1, "asprintf key");
 
 	SSL_library_init();
 	SSL_load_error_strings();
 
 	/* setup method and context */
-	method = SSLv23_server_method();
+	method = SSLv23_client_method();
 	if (method == NULL)
-		err_ssl(1, "SSLv23_server_method");
+		err_ssl(1, "SSLv23_client_method");
 	ctx = SSL_CTX_new(method);
 	if (ctx == NULL)
 		err_ssl(1, "SSL_CTX_new");
-
-	/* needed when linking with OpenSSL 1.0.2p */
-	if (SSL_CTX_set_ecdh_auto(ctx, 1) <= 0)
-		err_ssl(1, "SSL_CTX_set_ecdh_auto");
-
-	/* load server certificate */
-	if (SSL_CTX_use_certificate_file(ctx, crt, SSL_FILETYPE_PEM) <= 0)
-		err_ssl(1, "SSL_CTX_use_certificate_file");
-	if (SSL_CTX_use_PrivateKey_file(ctx, key, SSL_FILETYPE_PEM) <= 0)
-		err_ssl(1, "SSL_CTX_use_PrivateKey_file");
-	if (SSL_CTX_check_private_key(ctx) <= 0)
-		err_ssl(1, "SSL_CTX_check_private_key");
 
 	/* setup ssl and bio for socket operations */
 	ssl = SSL_new(ctx);
 	if (ssl == NULL)
 		err_ssl(1, "SSL_new");
-	bio = BIO_new_accept(host_port);
+	bio = BIO_new_connect(host_port);
 	if (bio == NULL)
-		err_ssl(1, "BIO_new_accept");
+		err_ssl(1, "BIO_new_connect");
 	SSL_set_bio(ssl, bio, bio);
 
 	print_ciphers(SSL_get_ciphers(ssl));
 
-	/* bind, listen */
-	if (BIO_do_accept(bio) <= 0)
-		err_ssl(1, "BIO_do_accept setup");
+	/* connect */
+	if (BIO_do_connect(bio) <= 0)
+		err_ssl(1, "BIO_do_connect");
 	print_sockname(bio);
 
-	/* fork to background and accept */
-	if (daemon(1, 1) == -1)
-		err(1, "daemon");
-	if (BIO_do_accept(bio) <= 0)
-		err_ssl(1, "BIO_do_accept wait");
-
-	/* do ssl server handshake */
-	if ((error = SSL_accept(ssl)) <= 0)
-		err_ssl(1, "SSL_accept %d", error);
+	/* do ssl client handshake */
+	if ((error = SSL_connect(ssl)) <= 0)
+		err_ssl(1, "SSL_connect %d", error);
 
 	/* print session statistics */
 	session = SSL_get_session(ssl);
@@ -120,23 +98,23 @@ main(int argc, char *argv[])
 	if (SSL_SESSION_print_fp(stdout, session) <= 0)
 		err_ssl(1, "SSL_SESSION_print_fp");
 
-	/* write server greeting and read client hello over TLS connection */
-	strlcpy(buf, "greeting\n", sizeof(buf));
-	printf(">>> %s", buf);
-	if (fflush(stdout) != 0)
-		err(1, "fflush stdout");
-	if ((error = SSL_write(ssl, buf, 9)) <= 0)
-		err_ssl(1, "SSL_write %d", error);
-	if (error != 9)
-		errx(1, "write not 9 bytes greeting: %d", error);
-	if ((error = SSL_read(ssl, buf, 6)) <= 0)
+	/* read server greeting and write client hello over TLS connection */
+	if ((error = SSL_read(ssl, buf, 9)) <= 0)
 		err_ssl(1, "SSL_read %d", error);
-	if (error != 6)
-		errx(1, "read not 6 bytes hello: %d", error);
-	buf[6] = '\0';
+	if (error != 9)
+		errx(1, "read not 9 bytes greeting: %d", error);
+	buf[9] = '\0';
 	printf("<<< %s", buf);
 	if (fflush(stdout) != 0)
 		err(1, "fflush stdout");
+	strlcpy(buf, "hello\n", sizeof(buf));
+	printf(">>> %s", buf);
+	if (fflush(stdout) != 0)
+		err(1, "fflush stdout");
+	if ((error = SSL_write(ssl, buf, 6)) <= 0)
+		err_ssl(1, "SSL_write %d", error);
+	if (error != 6)
+		errx(1, "write not 6 bytes hello: %d", error);
 
 	/* shutdown connection */
 	if ((error = SSL_shutdown(ssl)) < 0)

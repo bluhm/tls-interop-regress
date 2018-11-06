@@ -1,17 +1,20 @@
 # $OpenBSD$
 
-PROG =			server
+PROGS =			client server
 CPPFLAGS =
 LDFLAGS =
 LDADD =			-lssl -lcrypto
 DPADD =			${LIBSSL} ${LIBCRYPTO}
 LD_LIBRARY_PATH =
 
-run-ldd-${PROG}: ldd-${PROG}.out
-	# check that ${PROG} is linked with LibreSSL
-	grep -q /usr/lib/libcrypto.so ldd-${PROG}.out
-	grep -q /usr/lib/libssl.so ldd-${PROG}.out
-	# check that ${PROG} is not linked with OpenSSL
-	! grep /usr/local/lib/ ldd-${PROG}.out
+.for p in ${PROGS}
+run-ldd-$p: ldd-$p.out
+	@echo '\n======== $@ ========'
+	# check that $p is linked with LibreSSL
+	grep -q /usr/lib/libcrypto.so ldd-$p.out
+	grep -q /usr/lib/libssl.so ldd-$p.out
+	# check that $p is not linked with OpenSSL
+	! grep /usr/local/lib/ ldd-$p.out
+.endfor
 
 .include <bsd.regress.mk>
