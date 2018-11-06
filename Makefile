@@ -6,8 +6,16 @@ DPADD =		${LIBSSL} ${LIBCRYPTO}
 run-regress-${PROG}: ${PROG} 127.0.0.1.crt
 
 run-regress-${PROG}:
-	./ssl_server | tee server.out
-	nc -c -T noverify `sed -n 's/listen sock: //p'`
+	./ssl_server >server.out
+	echo "hello" | nc -c -T noverify\
+	    `sed -n 's/listen sock: //p' server.out`\
+	    >client.out
+	# check that the server child run successfully to the end
+	grep -q '^success$$' server.out
+	# server must have read client hello
+	grep -q '^<<< hello$$' server.out
+	# client must have read server greeting
+	grep -q '^greeting$$' client.out
 
 # create certificates for TLS
 

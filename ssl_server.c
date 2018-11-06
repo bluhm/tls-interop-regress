@@ -39,7 +39,7 @@ main(int argc, char *argv[])
 	BIO *bio;
 	SSL_SESSION *session;
 	int error;
-	pid_t pid;
+	char buf[256];
 
 	SSL_library_init();
 	SSL_load_error_strings();
@@ -68,7 +68,7 @@ main(int argc, char *argv[])
 	ssl = SSL_new(ctx);
 	if (ssl == NULL)
 		err_ssl(1, "SSL_new");
-	bio = BIO_new_accept("127.0.0.1:12345");
+	bio = BIO_new_accept("127.0.0.1:0");
 	if (bio == NULL)
 		err_ssl(1, "BIO_new_accept");
 	SSL_set_bio(ssl, bio, bio);
@@ -79,12 +79,8 @@ main(int argc, char *argv[])
 	print_sockname(bio);
 
 	/* fork to background and accept */
-	if ((pid = fork()) == -1)
-		err(1, "fork");
-	if (pid != 0) {
-		/* parent */
-		_exit(0);
-	}
+	if (daemon(1, 1) == -1)
+		err(1, "daemon");
 	if (BIO_do_accept(bio) <= 0)
 		err_ssl(1, "BIO_do_accept wait");
 
@@ -99,15 +95,37 @@ main(int argc, char *argv[])
 	if (SSL_SESSION_print_fp(stdout, session) <= 0)
 		err_ssl(1, "SSL_SESSION_print_fp");
 
+	/* write server greeting and read client hello over TLS connection */
+	strlcpy(buf, "greeting\n", sizeof(buf));
+	printf(">>> %s", buf);
+	if (fflush(stdout) != 0)
+		err(1, "fflush stdout");
+	if ((error = SSL_write(ssl, buf, 9)) <= 0)
+		err_ssl(1, "SSL_write %d", error);
+	if (error != 9)
+		errx(1, "write not 9 bytes greeting: %d", error);
+	if ((error = SSL_read(ssl, buf, 6)) <= 0)
+		err_ssl(1, "SSL_read %d", error);
+	if (error != 6)
+		errx(1, "read not 6 bytes hello: %d", error);
+	buf[6] = '\0';
+	printf("<<< %s", buf);
+	if (fflush(stdout) != 0)
+		err(1, "fflush stdout");
+
 	/* shutdown connection */
 	if ((error = SSL_shutdown(ssl)) < 0)
 		err_ssl(1, "SSL_shutdown unidirectional %d", error);
-	if ((error = SSL_shutdown(ssl)) <= 0)
-		err_ssl(1, "SSL_shutdown bidirectional %d", error);
+	if (error <= 0) {
+		if ((error = SSL_shutdown(ssl)) <= 0)
+			err_ssl(1, "SSL_shutdown bidirectional %d", error);
+	}
 
 	/* cleanup and free resources */
 	SSL_free(ssl);
 	SSL_CTX_free(ctx);
+
+	printf("success\n");
 
 	return 0;
 }
