@@ -11,7 +11,7 @@ REGRESS_TARGETS	=
 
 # check that program is linked with correct libraries
 
-CLEANFILES +=		ldd-${PROG}.out:
+CLEANFILES +=		ldd-${PROG}.out
 REGRESS_TARGETS +=	run-ldd-${PROG}
 ldd-${PROG}.out: ${PROG}
 	LD_LIBRARY_PATH=${LD_LIBRARY_PATH} ldd ${PROG} >$@

@@ -52,6 +52,10 @@ main(int argc, char *argv[])
 	if (ctx == NULL)
 		err_ssl(1, "SSL_CTX_new");
 
+	/* needed when linking with OpenSSL 1.0.2p */
+	if (SSL_CTX_set_ecdh_auto(ctx, 1) <= 0)
+		err_ssl(1, "SSL_CTX_set_ecdh_auto");
+
 	/* load server certificate */
 	if (SSL_CTX_use_certificate_file(ctx, "127.0.0.1.crt",
 	    SSL_FILETYPE_PEM) <= 0)
