@@ -3,7 +3,11 @@ WARNINGS =	yes
 LDADD =		-lssl -lcrypto
 DPADD =		${LIBSSL} ${LIBCRYPTO}
 
-run-regress-${PROG}: 127.0.0.1.crt
+run-regress-${PROG}: ${PROG} 127.0.0.1.crt
+
+run-regress-${PROG}:
+	./ssl_server | tee server.out
+	nc -c -T noverify `sed -n 's/listen sock: //p'`
 
 # create certificates for TLS
 

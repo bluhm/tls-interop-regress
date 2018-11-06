@@ -1,9 +1,27 @@
+/*	$OpenBSD$	*/
+/*
+ * Copyright (c) 2018 Alexander Bluhm <bluhm@openbsd.org>
+ *
+ * Permission to use, copy, modify, and distribute this software for any
+ * purpose with or without fee is hereby granted, provided that the above
+ * copyright notice and this permission notice appear in all copies.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+ * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ * ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+ * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ * ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+ * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
 #include <sys/types.h>
 #include <sys/socket.h>
 
 #include <err.h>
 #include <netdb.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include <openssl/err.h>
 #include <openssl/ssl.h>
@@ -21,6 +39,7 @@ main(int argc, char *argv[])
 	BIO *bio;
 	SSL_SESSION *session;
 	int error;
+	pid_t pid;
 
 	SSL_library_init();
 	SSL_load_error_strings();
@@ -54,10 +73,18 @@ main(int argc, char *argv[])
 		err_ssl(1, "BIO_new_accept");
 	SSL_set_bio(ssl, bio, bio);
 
-	/* bind, listen, accept */
+	/* bind, listen */
 	if (BIO_do_accept(bio) <= 0)
 		err_ssl(1, "BIO_do_accept setup");
 	print_sockname(bio);
+
+	/* fork to background and accept */
+	if ((pid = fork()) == -1)
+		err(1, "fork");
+	if (pid != 0) {
+		/* parent */
+		_exit(0);
+	}
 	if (BIO_do_accept(bio) <= 0)
 		err_ssl(1, "BIO_do_accept wait");
 
@@ -93,6 +120,8 @@ print_ciphers(STACK_OF(SSL_CIPHER) *cstack)
 
 	for (i = 0; (cipher = sk_SSL_CIPHER_value(cstack, i)) != NULL; i++)
 		printf("cipher %s\n", SSL_CIPHER_get_name(cipher));
+	if (fflush(stdout) != 0)
+		err(1, "fflush stdout");
 }
 
 void
@@ -112,6 +141,8 @@ print_sockname(BIO *bio)
 	    sizeof(host), port, sizeof(port), NI_NUMERICHOST | NI_NUMERICSERV))
 		errx(1, "getnameinfo");
 	printf("listen sock: %s %s\n", host, port);
+	if (fflush(stdout) != 0)
+		err(1, "fflush stdout");
 }
 
 void
