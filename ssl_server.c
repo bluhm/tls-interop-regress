@@ -45,7 +45,7 @@ main(int argc, char *argv[])
 	SSL_load_error_strings();
 
 	/* setup method and context */
-	method = TLS_server_method();
+	method = SSLv23_server_method();
 	if (method == NULL)
 		err_ssl(1, "TLS_server_method");
 	ctx = SSL_CTX_new(method);
@@ -62,8 +62,6 @@ main(int argc, char *argv[])
 	if (SSL_CTX_check_private_key(ctx) <= 0)
 		err_ssl(1, "SSL_CTX_check_private_key");
 
-	print_ciphers(SSL_CTX_get_ciphers(ctx));
-
 	/* setup ssl and bio for socket operations */
 	ssl = SSL_new(ctx);
 	if (ssl == NULL)
@@ -72,6 +70,8 @@ main(int argc, char *argv[])
 	if (bio == NULL)
 		err_ssl(1, "BIO_new_accept");
 	SSL_set_bio(ssl, bio, bio);
+
+	print_ciphers(SSL_get_ciphers(ssl));
 
 	/* bind, listen */
 	if (BIO_do_accept(bio) <= 0)
