@@ -1,7 +1,7 @@
 Test TLS interoperability between LibreSSL and OpenSSL.
 
-Implement a simple SSL client and server in C.  Create four binaries
-by linking it with LibreSSL or OpenSSL.  This way API compatibility
+Implement simple SSL client and server in C.  Create four binaries
+by linking them with LibreSSL or OpenSSL.  This way API compatibility
 is tested.  Connect and accept with netcat to test protocol
 compatibility with libtls.
 
