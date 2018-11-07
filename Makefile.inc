@@ -73,10 +73,16 @@ self-client.out self-server.out run-self: client server 127.0.0.1.crt
 	# server must have read client hello
 	grep -q '^<<< hello$$' self-server.out
 
-# check that programs have used correct runtime library
-
 .for o in nc-client nc-server self-client self-server
+
+# check that client and server have used correct runtime library
+
 REGRESS_TARGETS +=	run-version-$o
+
+# check that client and server have used correct TLS protocol
+
+REGRESS_TARGETS +=	run-protocol-$o
+
 .endfor
 
 # create certificates for TLS

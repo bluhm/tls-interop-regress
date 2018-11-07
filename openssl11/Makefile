@@ -14,6 +14,11 @@ DPADD =			/usr/local/lib/eopenssl11/libssl.a \
 			/usr/local/lib/eopenssl11/libcrypto.a
 LD_LIBRARY_PATH =	/usr/local/lib/eopenssl11
 
+run-protocol-nc-client run-protocol-nc-server:
+	@echo '\n======== $@ ========'
+	# LibreSSL does not support TLS 1.3 yet
+	@echo DISABLED
+
 .for p in ${PROGS}
 run-ldd-$p: ldd-$p.out
 	@echo '\n======== $@ ========'
@@ -29,6 +34,11 @@ run-version-$o: $o.out
 	@echo '\n======== $@ ========'
 	# check that runtime version is OpenSSL 1.1
 	grep 'SSLEAY_VERSION: OpenSSL 1.1' $o.out
+
+run-protocol-$o: $o.out
+	@echo '\n======== $@ ========'
+	# check that protocol version is TLS 1.3
+	grep 'Protocol *: TLSv1.3' $o.out
 .endfor
 
 .include <bsd.regress.mk>

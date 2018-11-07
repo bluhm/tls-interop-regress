@@ -29,6 +29,11 @@ run-version-$o: $o.out
 	@echo '\n======== $@ ========'
 	# check that runtime version is OpenSSL 1.0
 	grep 'SSLEAY_VERSION: OpenSSL 1.0' $o.out
+
+run-protocol-$o: $o.out
+	@echo '\n======== $@ ========'
+	# check that protocol version is TLS 1.2
+	grep 'Protocol *: TLSv1.2' $o.out
 .endfor
 
 .include <bsd.regress.mk>
