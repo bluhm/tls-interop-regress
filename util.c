@@ -30,7 +30,7 @@
 void
 print_ciphers(STACK_OF(SSL_CIPHER) *cstack)
 {
-	SSL_CIPHER *cipher;
+	const SSL_CIPHER *cipher;
 	int i;
 
 	for (i = 0; (cipher = sk_SSL_CIPHER_value(cstack, i)) != NULL; i++)
