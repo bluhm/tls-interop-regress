@@ -57,4 +57,6 @@ run-server: server 127.0.0.1.crt
 CLEANFILES +=		127.0.0.1.crt 127.0.0.1.key
 
 127.0.0.1.crt:
-	openssl req -batch -new -subj /L=OpenBSD/O=tls-regress/OU=server/CN=127.0.0.1/ -nodes -newkey rsa -keyout 127.0.0.1.key -x509 -out $@
+	openssl req -batch -new \
+	    -subj /L=OpenBSD/O=tls-regress/OU=server/CN=127.0.0.1/ \
+	    -nodes -newkey rsa -keyout 127.0.0.1.key -x509 -out $@
