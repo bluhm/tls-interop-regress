@@ -69,9 +69,15 @@ main(int argc, char *argv[])
 	print_version();
 
 	/* setup method and context */
+#if OPENSSL_VERSION_NUMBER >= 0x1010000f
+	method = TLS_server_method();
+	if (method == NULL)
+		err_ssl(1, "TLS_server_method");
+#else
 	method = SSLv23_server_method();
 	if (method == NULL)
 		err_ssl(1, "SSLv23_server_method");
+#endif
 	ctx = SSL_CTX_new(method);
 	if (ctx == NULL)
 		err_ssl(1, "SSL_CTX_new");
