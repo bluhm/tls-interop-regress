@@ -71,7 +71,7 @@ print_peername(BIO *bio)
 	if (BIO_get_fd(bio, &fd) <= 0)
 		err_ssl(1, "BIO_get_fd");
 	slen = sizeof(ss);
-	if (getpeername(fd, (struct peeraddr *)&ss, &slen) == -1)
+	if (getpeername(fd, (struct sockaddr *)&ss, &slen) == -1)
 		err(1, "getpeername");
 	if (getnameinfo((struct sockaddr *)&ss, ss.ss_len, host,
 	    sizeof(host), port, sizeof(port), NI_NUMERICHOST | NI_NUMERICSERV))
