@@ -2,8 +2,8 @@
 
 .PATH:			${.CURDIR}/..
 
-LDADD =			-lssl -lcrypto
-DPADD ?=		${LIBSSL} ${LIBCRYPTO}
+SRCS_client =		client.c util.c
+SRCS_server =		server.c util.c
 WARNINGS =		yes
 REGRESS_TARGETS	=
 

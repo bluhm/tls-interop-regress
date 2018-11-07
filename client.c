@@ -26,10 +26,9 @@
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 
+#include "util.h"
+
 void __dead usage(void);
-void print_ciphers(STACK_OF(SSL_CIPHER) *);
-void print_sockname(BIO *);
-void err_ssl(int, const char *, ...);
 
 void __dead
 usage(void)
@@ -85,7 +84,10 @@ main(int argc, char *argv[])
 	/* connect */
 	if (BIO_do_connect(bio) <= 0)
 		err_ssl(1, "BIO_do_connect");
+	printf("connect ");
 	print_sockname(bio);
+	printf("connect ");
+	print_peername(bio);
 
 	/* do ssl client handshake */
 	if ((error = SSL_connect(ssl)) <= 0)
@@ -131,48 +133,4 @@ main(int argc, char *argv[])
 	printf("success\n");
 
 	return 0;
-}
-
-void
-print_ciphers(STACK_OF(SSL_CIPHER) *cstack)
-{
-	SSL_CIPHER *cipher;
-	int i;
-
-	for (i = 0; (cipher = sk_SSL_CIPHER_value(cstack, i)) != NULL; i++)
-		printf("cipher %s\n", SSL_CIPHER_get_name(cipher));
-	if (fflush(stdout) != 0)
-		err(1, "fflush stdout");
-}
-
-void
-print_sockname(BIO *bio)
-{
-	struct sockaddr_storage lsock;
-	socklen_t slen;
-	char host[NI_MAXHOST], port[NI_MAXSERV];
-	int fd;
-
-	if (BIO_get_fd(bio, &fd) <= 0)
-		err_ssl(1, "BIO_get_fd");
-	slen = sizeof(lsock);
-	if (getsockname(fd, (struct sockaddr *)&lsock, &slen) == -1)
-		err(1, "getsockname");
-	if (getnameinfo((struct sockaddr *)&lsock, lsock.ss_len, host,
-	    sizeof(host), port, sizeof(port), NI_NUMERICHOST | NI_NUMERICSERV))
-		errx(1, "getnameinfo");
-	printf("listen sock: %s %s\n", host, port);
-	if (fflush(stdout) != 0)
-		err(1, "fflush stdout");
-}
-
-void
-err_ssl(int eval, const char *fmt, ...)
-{
-	va_list ap;
-
-	ERR_print_errors_fp(stderr);
-	va_start(ap, fmt);
-	verrx(eval, fmt, ap);
-	va_end(ap);
 }
