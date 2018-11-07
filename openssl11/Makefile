@@ -1,4 +1,4 @@
-# $OpenBSD: Makefile,v 1.1 2018/11/07 19:09:01 bluhm Exp $
+# $OpenBSD: Makefile,v 1.2 2018/11/07 20:46:28 bluhm Exp $
 
 .if ! exists(/usr/local/bin/eopenssl11)
 regress:

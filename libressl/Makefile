@@ -1,4 +1,4 @@
-# $OpenBSD: Makefile,v 1.2 2018/11/07 06:29:26 bluhm Exp $
+# $OpenBSD: Makefile,v 1.3 2018/11/07 20:46:28 bluhm Exp $
 
 PROGS =			client server
 CPPFLAGS =
@@ -22,7 +22,6 @@ run-ldd-$p: ldd-$p.out
 	# check that $p is not linked with OpenSSL
 	! grep /usr/local/lib/ ldd-$p.out
 .endfor
-
 
 .for o in nc-client nc-server self-client self-server
 run-version-$o: $o.out
