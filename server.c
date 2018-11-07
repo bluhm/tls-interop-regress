@@ -93,7 +93,6 @@ main(int argc, char *argv[])
 	bio = BIO_new_accept(host_port);
 	if (bio == NULL)
 		err_ssl(1, "BIO_new_accept");
-	SSL_set_bio(ssl, bio, bio);
 
 	print_ciphers(SSL_get_ciphers(ssl));
 
@@ -108,8 +107,14 @@ main(int argc, char *argv[])
 		err(1, "daemon");
 	if (BIO_do_accept(bio) <= 0)
 		err_ssl(1, "BIO_do_accept wait");
+	bio = BIO_pop(bio);
+	printf("accept ");
+	print_sockname(bio);
+	printf("accept ");
+	print_peername(bio);
 
 	/* do ssl server handshake */
+	SSL_set_bio(ssl, bio, bio);
 	if ((error = SSL_accept(ssl)) <= 0)
 		err_ssl(1, "SSL_accept %d", error);
 

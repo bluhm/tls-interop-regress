@@ -77,7 +77,6 @@ main(int argc, char *argv[])
 	bio = BIO_new_connect(host_port);
 	if (bio == NULL)
 		err_ssl(1, "BIO_new_connect");
-	SSL_set_bio(ssl, bio, bio);
 
 	print_ciphers(SSL_get_ciphers(ssl));
 
@@ -90,6 +89,7 @@ main(int argc, char *argv[])
 	print_peername(bio);
 
 	/* do ssl client handshake */
+	SSL_set_bio(ssl, bio, bio);
 	if ((error = SSL_connect(ssl)) <= 0)
 		err_ssl(1, "SSL_connect %d", error);
 
