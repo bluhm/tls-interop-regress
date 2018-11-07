@@ -15,6 +15,11 @@ run-ldd-$p: ldd-$p.out
 	grep -q /usr/lib/libssl.so ldd-$p.out
 	# check that $p is not linked with OpenSSL
 	! grep /usr/local/lib/ ldd-$p.out
+
+run-version-$p: $p.out
+	@echo '\n======== $@ ========'
+	# check that runtime version is LibreSSL
+	grep 'SSLEAY_VERSION: LibreSSL' $p.out
 .endfor
 
 .include <bsd.regress.mk>
