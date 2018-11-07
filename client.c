@@ -62,6 +62,7 @@ main(int argc, char *argv[])
 
 	SSL_library_init();
 	SSL_load_error_strings();
+	print_version();
 
 	/* setup method and context */
 	method = SSLv23_client_method();
@@ -78,7 +79,6 @@ main(int argc, char *argv[])
 	bio = BIO_new_connect(host_port);
 	if (bio == NULL)
 		err_ssl(1, "BIO_new_connect");
-
 	print_ciphers(SSL_get_ciphers(ssl));
 
 	/* connect */

@@ -15,6 +15,7 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+void print_version(void);
 void print_ciphers(STACK_OF(SSL_CIPHER) *);
 void print_sockname(BIO *);
 void print_peername(BIO *);

@@ -24,8 +24,50 @@
 
 #include <openssl/err.h>
 #include <openssl/ssl.h>
+#include <openssl/opensslv.h>
+#include <openssl/crypto.h>
 
 #include "util.h"
+
+void
+print_version(void)
+{
+#ifdef OPENSSL_VERSION_NUMBER
+	printf("OPENSSL_VERSION_NUMBER: %#08lx\n", OPENSSL_VERSION_NUMBER);
+#endif
+#ifdef LIBRESSL_VERSION_NUMBER
+	printf("LIBRESSL_VERSION_NUMBER: %#08lx\n", LIBRESSL_VERSION_NUMBER);
+#endif
+#ifdef LIBRESSL_VERSION_TEXT
+	printf("LIBRESSL_VERSION_TEXT: %s\n", LIBRESSL_VERSION_TEXT);
+#endif
+#if OPENSSL_VERSION_NUMBER >= 0x1010000f
+	printf("OpenSSL_version_num: %#08lx\n", OpenSSL_version_num());
+	printf("OpenSSL_version OPENSSL_VERSION: %s\n",
+	    OpenSSL_version(OPENSSL_VERSION));
+	printf("OpenSSL_version OPENSSL_CFLAGS: %s\n",
+	    OpenSSL_version(OPENSSL_CFLAGS));
+	printf("OpenSSL_version OPENSSL_BUILT_ON: %s\n",
+	    OpenSSL_version(OPENSSL_BUILT_ON));
+	printf("OpenSSL_version OPENSSL_PLATFORM: %s\n",
+	    OpenSSL_version(OPENSSL_PLATFORM));
+	printf("OpenSSL_version OPENSSL_DIR: %s\n",
+	    OpenSSL_version(OPENSSL_DIR));
+	printf("OpenSSL_version OPENSSL_ENGINES_DIR: %s\n",
+	    OpenSSL_version(OPENSSL_ENGINES_DIR));
+#endif
+	printf("SSLeay: %#08lx\n", SSLeay());
+	printf("SSLeay_version SSLEAY_VERSION: %s\n",
+	    SSLeay_version(SSLEAY_VERSION));
+	printf("SSLeay_version SSLEAY_CFLAGS: %s\n",
+	    SSLeay_version(SSLEAY_CFLAGS));
+	printf("SSLeay_version SSLEAY_BUILT_ON: %s\n",
+	    SSLeay_version(SSLEAY_BUILT_ON));
+	printf("SSLeay_version SSLEAY_PLATFORM: %s\n",
+	    SSLeay_version(SSLEAY_PLATFORM));
+	printf("SSLeay_version SSLEAY_DIR: %s\n",
+	    SSLeay_version(SSLEAY_DIR));
+}
 
 void
 print_ciphers(STACK_OF(SSL_CIPHER) *cstack)
