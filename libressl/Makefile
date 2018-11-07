@@ -15,11 +15,14 @@ run-ldd-$p: ldd-$p.out
 	grep -q /usr/lib/libssl.so ldd-$p.out
 	# check that $p is not linked with OpenSSL
 	! grep /usr/local/lib/ ldd-$p.out
+.endfor
 
-run-version-$p: $p.out
+
+.for o in nc-client nc-server self-client self-server
+run-version-$o: $o.out
 	@echo '\n======== $@ ========'
 	# check that runtime version is LibreSSL
-	grep 'SSLEAY_VERSION: LibreSSL' $p.out
+	grep 'SSLEAY_VERSION: LibreSSL' $o.out
 .endfor
 
 .include <bsd.regress.mk>
