@@ -1,4 +1,4 @@
-/*	$OpenBSD: server.c,v 1.2 2018/11/07 06:29:26 bluhm Exp $	*/
+/*	$OpenBSD: server.c,v 1.3 2018/11/07 19:09:01 bluhm Exp $	*/
 /*
  * Copyright (c) 2018 Alexander Bluhm <bluhm@openbsd.org>
  *
