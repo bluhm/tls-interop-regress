@@ -17,8 +17,9 @@ CLEANFILES +=	client.out server.out
 .for cv in noverify verify
 .for sv in noverify verify
 
-REGRESS_TARGET +=	\
+REGRESS_TARGETS +=	\
 run-client-${clib}-${cca}-${ccert}-${cv}-server-${slib}-${sca}-${scert}-${sv}
+
 run-client-${clib}-${cca}-${ccert}-${cv}-server-${slib}-${sca}-${scert}-${sv}:\
     ca.crt fake-ca.crt client.crt server.crt \
     ../${clib}/client ../${slib}/server

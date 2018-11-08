@@ -5,13 +5,11 @@
 SRCS_client =		client.c util.c
 SRCS_server =		server.c util.c
 WARNINGS =		yes
-REGRESS_TARGETS	=
 
 # check that program is linked with correct libraries
 
 .for p in ${PROGS}
 CLEANFILES +=		ldd-$p.out
-REGRESS_TARGETS +=	run-ldd-$p
 ldd-$p.out: $p
 	LD_LIBRARY_PATH=${LD_LIBRARY_PATH} ldd $p >$@
 .endfor
@@ -19,7 +17,6 @@ ldd-$p.out: $p
 # run netcat server and connect with test client
 
 CLEANFILES +=		nc-client.out netcat-l.out netcat-l.fstat
-REGRESS_TARGETS +=	run-client
 nc-client.out run-client: client 127.0.0.1.crt
 	@echo '\n======== $@ ========'
 	echo "greeting" | nc -l -c -C 127.0.0.1.crt -K 127.0.0.1.key \
@@ -40,7 +37,6 @@ nc-client.out run-client: client 127.0.0.1.crt
 # run test server and connect with netcat client
 
 CLEANFILES +=		nc-server.out netcat.out
-REGRESS_TARGETS +=	run-server
 nc-server.out run-server: server 127.0.0.1.crt
 	@echo '\n======== $@ ========'
 	LD_LIBRARY_PATH=${LD_LIBRARY_PATH} ./server 127.0.0.1 0 \
@@ -58,7 +54,6 @@ nc-server.out run-server: server 127.0.0.1.crt
 # run test server and with test client, self test the ssl library
 
 CLEANFILES +=		self-client.out self-server.out
-REGRESS_TARGETS +=	run-self
 self-client.out self-server.out run-self: client server 127.0.0.1.crt
 	@echo '\n======== $@ ========'
 	LD_LIBRARY_PATH=${LD_LIBRARY_PATH} ./server 127.0.0.1 0 \
@@ -74,18 +69,6 @@ self-client.out self-server.out run-self: client server 127.0.0.1.crt
 	grep -q '^success$$' self-server.out
 	# server must have read client hello
 	grep -q '^<<< hello$$' self-server.out
-
-.for o in nc-client nc-server self-client self-server
-
-# check that client and server have used correct runtime library
-
-REGRESS_TARGETS +=	run-version-$o
-
-# check that client and server have used correct TLS protocol
-
-REGRESS_TARGETS +=	run-protocol-$o
-
-.endfor
 
 # create certificates for TLS
 

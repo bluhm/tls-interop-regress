@@ -13,6 +13,13 @@ LDADD =			-lssl -lcrypto
 DPADD =			/usr/local/lib/eopenssl/libssl.a \
 			/usr/local/lib/eopenssl/libcrypto.a
 LD_LIBRARY_PATH =	/usr/local/lib/eopenssl
+REGRESS_TARGETS =	run-self
+.for p in ${PROGS}
+REGRESS_TARGETS +=	run-ldd-$p run-$p
+.for x in nc self
+REGRESS_TARGETS +=	run-version-$x-$p run-protocol-$x-$p
+.endfor
+.endfor
 
 .for p in ${PROGS}
 run-ldd-$p: ldd-$p.out
