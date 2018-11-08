@@ -18,15 +18,14 @@ REGRESS_TARGETS +=	run-protocol-client-${clib}
 run-netcat-client-${clib}-server-nc: ../${clib}/client 127.0.0.1.crt
 	@echo '\n======== $@ ========'
 	echo "greeting" | \
-	    nc >${@:S/^run/server/}.out \
-	    -l -c -C 127.0.0.1.crt -K 127.0.0.1.key \
+	    nc >${@:S/^run/server/}.out 2>netcat-l.err \
+	    -nv -l -c -C 127.0.0.1.crt -K 127.0.0.1.key \
 	    127.0.0.1 0 & \
-	    for i in `jot 1000`; do fstat -p $$! >netcat.fstat; \
-	    grep -q ' stream tcp .*:[1-9][0-9]*$$' netcat.fstat && \
+	    for i in `jot 1000`; do grep -q '^Listening on ' netcat-l.err && \
 	    exit 0; done; exit 1
 	LD_LIBRARY_PATH=/usr/local/lib/e${clib} \
 	    ../${clib}/client >${@:S/^run/client/}.out \
-	    `sed -n 's/.* stream tcp .*:/127.0.0.1 /p' netcat.fstat`
+	    `sed -n 's/Listening on //p' netcat-l.err`
 	# check that the client run successfully to the end
 	grep -q '^success$$' ${@:S/^run/client/}.out
 	# client must have read server greeting
@@ -48,8 +47,8 @@ run-netcat-client-nc-server-${slib}: ../${slib}/server 127.0.0.1.crt
 	    ../${slib}/server >${@:S/^run/server/}.out \
 	    127.0.0.1 0
 	echo "hello" | \
-	    nc >${@:S/^run/client/}.out \
-	    -c -R 127.0.0.1.crt \
+	    nc >${@:S/^run/client/}.out 2>netcat.err \
+	    -nv -c -R 127.0.0.1.crt \
 	    `sed -n 's/listen sock: //p' ${@:S/^run/server/}.out`
 	# check that the server child run successfully to the end
 	grep -q '^success$$' ${@:S/^run/server/}.out || \
