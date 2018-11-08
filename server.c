@@ -141,9 +141,11 @@ main(int argc, char *argv[])
 	printf("listen ");
 	print_sockname(bio);
 
-	/* fork to background and accept */
+	/* fork to background, set timeout, and accept */
 	if (daemon(1, 1) == -1)
 		err(1, "daemon");
+	if ((int)alarm(60) == -1)
+		err(1, "alarm");
 	if (BIO_do_accept(bio) <= 0)
 		err_ssl(1, "BIO_do_accept wait");
 	bio = BIO_pop(bio);
