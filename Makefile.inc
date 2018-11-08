@@ -24,7 +24,9 @@ nc-client.out run-client: client 127.0.0.1.crt
 	@echo '\n======== $@ ========'
 	echo "greeting" | nc -l -c -C 127.0.0.1.crt -K 127.0.0.1.key \
 	    127.0.0.1 0 >netcat-l.out & \
-	    sleep 1; fstat -p $$! >netcat-l.fstat
+	    for i in `jot 1000`; do fstat -p $$! >netcat-l.fstat; \
+	    grep -q ' stream tcp .*:[1-9][0-9]*$$' netcat-l.fstat && exit 0; \
+	    done; exit 1
 	LD_LIBRARY_PATH=${LD_LIBRARY_PATH} ./client \
 	    `sed -n 's/.* stream tcp .*:/127.0.0.1 /p' netcat-l.fstat` \
 	    >nc-client.out
