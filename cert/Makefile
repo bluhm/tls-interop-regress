@@ -21,7 +21,7 @@ REGRESS_TARGETS +=	\
 run-client-${clib}-${cca}-${ccert}-${cv}-server-${slib}-${sca}-${scert}-${sv}
 
 run-client-${clib}-${cca}-${ccert}-${cv}-server-${slib}-${sca}-${scert}-${sv}:\
-    ca.crt fake-ca.crt client.crt server.crt \
+    127.0.0.1.crt ca.crt fake-ca.crt client.crt server.crt \
     ../${clib}/client ../${slib}/server
 	@echo '\n======== $@ ========'
 	LD_LIBRARY_PATH=/usr/local/lib/e${slib} ../${slib}/server >server.out \
