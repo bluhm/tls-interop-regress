@@ -34,7 +34,7 @@ void __dead usage(void);
 void __dead
 usage(void)
 {
-	fprintf(stderr, "usage: client host port");
+	fprintf(stderr, "usage: client [-C CA] [-c crt -k key] host port");
 	exit(2);
 }
 
@@ -47,18 +47,39 @@ main(int argc, char *argv[])
 	BIO *bio;
 	SSL_SESSION *session;
 	int error;
-	char buf[256];
+	char buf[256], ch;
+	char *ca = NULL, *crt = NULL, *key = NULL;
 	char *host_port, *host, *port;
 
-	if (argc == 3) {
-		host = argv[1];
-		port = argv[2];
+	while ((ch = getopt(argc, argv, "C:c:k:")) != -1) {
+		switch (ch) {
+		case 'C':
+			ca = optarg;
+			break;
+		case 'c':
+			crt = optarg;
+			break;
+		case 'k':
+			key = optarg;
+			break;
+		default:
+			usage();
+		}
+	}
+	argc -= optind;
+	argv += optind;
+	if (argc == 2) {
+		host = argv[0];
+		port = argv[1];
 	} else {
+warnx("I was here!");
 		usage();
 	}
 	if (asprintf(&host_port, strchr(host, ':') ? "[%s]:%s" : "%s:%s",
 	    host, port) == -1)
 		err(1, "asprintf host port");
+	if ((crt == NULL && key != NULL) || (crt != NULL && key == NULL))
+		errx(1, "certificate and private key must be used together");
 
 	SSL_library_init();
 	SSL_load_error_strings();
@@ -77,6 +98,18 @@ main(int argc, char *argv[])
 	ctx = SSL_CTX_new(method);
 	if (ctx == NULL)
 		err_ssl(1, "SSL_CTX_new");
+
+	/* load client certificate */
+	if (crt != NULL) {
+		if (SSL_CTX_use_certificate_file(ctx, crt,
+		    SSL_FILETYPE_PEM) <= 0)
+			err_ssl(1, "SSL_CTX_use_certificate_file");
+		if (SSL_CTX_use_PrivateKey_file(ctx, key,
+		    SSL_FILETYPE_PEM) <= 0)
+			err_ssl(1, "SSL_CTX_use_PrivateKey_file");
+		if (SSL_CTX_check_private_key(ctx) <= 0)
+			err_ssl(1, "SSL_CTX_check_private_key");
+	}
 
 	/* setup ssl and bio for socket operations */
 	ssl = SSL_new(ctx);
