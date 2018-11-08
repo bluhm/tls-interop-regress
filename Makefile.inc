@@ -93,3 +93,17 @@ CLEANFILES +=		127.0.0.1.crt 127.0.0.1.key
 	openssl req -batch -new \
 	    -subj /L=OpenBSD/O=tls-regress/OU=server/CN=127.0.0.1/ \
 	    -nodes -newkey rsa -keyout 127.0.0.1.key -x509 -out $@
+
+ca.crt fake-ca.crt:
+	openssl req -batch -new \
+	    -subj /L=OpenBSD/O=tls-regress/OU=ca/CN=root/ \
+	    -nodes -newkey rsa -keyout ${@:R}.key -x509 -out $@
+
+client.req server.req:
+	openssl req -batch -new \
+	    -subj /L=OpenBSD/O=tls-regress/OU=${@:R}/CN=localhost/ \
+	    -nodes -newkey rsa -keyout ${@:R}.key -out $@
+
+client.crt server.crt: ca.crt ${@:R}.req
+	openssl x509 -CAcreateserial -CAkey ca.key -CA ca.crt \
+	    -req -in ${@:R}.req -out $@
