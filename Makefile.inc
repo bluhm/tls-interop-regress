@@ -43,7 +43,7 @@ nc-server.out run-server: server 127.0.0.1.crt
 	@echo '\n======== $@ ========'
 	LD_LIBRARY_PATH=${LD_LIBRARY_PATH} ./server 127.0.0.1 0 \
 	    >nc-server.out
-	echo "hello" | nc -c -T noverify \
+	echo "hello" | nc -c -R 127.0.0.1.crt \
 	    `sed -n 's/listen sock: //p' nc-server.out` \
 	    >netcat.out
 	# check that the server child run successfully to the end
