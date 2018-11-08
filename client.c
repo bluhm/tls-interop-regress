@@ -34,7 +34,8 @@ void __dead usage(void);
 void __dead
 usage(void)
 {
-	fprintf(stderr, "usage: client [-C CA] [-c crt -k key] host port");
+	fprintf(stderr,
+	    "usage: client [-c] [-C CA] [-c crt -k key] host port");
 	exit(2);
 }
 
@@ -51,7 +52,7 @@ main(int argc, char *argv[])
 	char *ca = NULL, *crt = NULL, *key = NULL;
 	char *host_port, *host, *port;
 
-	while ((ch = getopt(argc, argv, "C:c:k:")) != -1) {
+	while ((ch = getopt(argc, argv, "C:c:k:v")) != -1) {
 		switch (ch) {
 		case 'C':
 			ca = optarg;
@@ -61,6 +62,9 @@ main(int argc, char *argv[])
 			break;
 		case 'k':
 			key = optarg;
+			break;
+		case 'v':
+			/* verify, not yet */
 			break;
 		default:
 			usage();
@@ -72,7 +76,6 @@ main(int argc, char *argv[])
 		host = argv[0];
 		port = argv[1];
 	} else {
-warnx("I was here!");
 		usage();
 	}
 	if (asprintf(&host_port, strchr(host, ':') ? "[%s]:%s" : "%s:%s",

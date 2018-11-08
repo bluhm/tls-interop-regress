@@ -89,7 +89,9 @@ REGRESS_TARGETS +=	run-protocol-$o
 
 # create certificates for TLS
 
-CLEANFILES +=		127.0.0.1.crt 127.0.0.1.key
+CLEANFILES +=		127.0.0.1.{crt,key} \
+			ca.{crt,key,srl} fake-ca.{crt,key} \
+			{client,server}.{req,crt,key}
 
 127.0.0.1.crt:
 	openssl req -batch -new \
