@@ -2,7 +2,7 @@
 
 .if ! exists(/usr/local/bin/eopenssl11)
 regress:
-	# install openssl-1.1.1 from ports for interop tests
+	# install openssl-1.1 from ports for interop tests
 	@echo SKIPPED
 .endif
 
