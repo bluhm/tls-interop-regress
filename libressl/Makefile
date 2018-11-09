@@ -1,4 +1,4 @@
-# $OpenBSD: Makefile,v 1.3 2018/11/07 20:46:28 bluhm Exp $
+# $OpenBSD: Makefile,v 1.4 2018/11/09 06:30:41 bluhm Exp $
 
 PROGS =			client server
 CPPFLAGS =

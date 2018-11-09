@@ -1,4 +1,4 @@
-/*	$OpenBSD: util.h,v 1.2 2018/11/07 06:29:26 bluhm Exp $	*/
+/*	$OpenBSD: util.h,v 1.3 2018/11/09 06:30:41 bluhm Exp $	*/
 /*
  * Copyright (c) 2018 Alexander Bluhm <bluhm@openbsd.org>
  *

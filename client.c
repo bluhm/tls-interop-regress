@@ -1,4 +1,4 @@
-/*	$OpenBSD: client.c,v 1.3 2018/11/07 19:09:01 bluhm Exp $	*/
+/*	$OpenBSD: client.c,v 1.4 2018/11/09 06:30:41 bluhm Exp $	*/
 /*
  * Copyright (c) 2018 Alexander Bluhm <bluhm@openbsd.org>
  *
