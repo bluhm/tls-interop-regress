@@ -35,7 +35,7 @@ void __dead
 usage(void)
 {
 	fprintf(stderr,
-	    "usage: server [-v] [-C CA] [-c crt -k key] [host port]");
+	    "usage: server [-vv] [-C CA] [-c crt -k key] [host port]");
 	exit(2);
 }
 
@@ -64,7 +64,8 @@ main(int argc, char *argv[])
 			key = optarg;
 			break;
 		case 'v':
-			verify = 1;
+			/* use twice to force client cert */
+			verify++;
 			break;
 		default:
 			usage();
@@ -129,7 +130,10 @@ main(int argc, char *argv[])
 		if (SSL_CTX_load_verify_locations(ctx, ca, NULL) <= 0)
 			err_ssl(1, "SSL_CTX_load_verify_locations");
 	}
-	SSL_CTX_set_verify(ctx, verify ? SSL_VERIFY_PEER : SSL_VERIFY_NONE,
+	SSL_CTX_set_verify(ctx,
+	    verify == 0 ?  SSL_VERIFY_NONE :
+	    verify == 1 ?  SSL_VERIFY_PEER :
+	    SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT,
 	    verify_callback);
 
 	/* setup ssl and bio for socket operations */
