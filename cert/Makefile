@@ -28,7 +28,7 @@ FAIL_${cca}_${sca}_${ccert}_${scert}_${cv}_${sv} = !
 .endif
 
 .for clib in libressl openssl openssl11
-.for slib in  libressl openssl openssl11
+.for slib in libressl openssl openssl11
 
 REGRESS_TARGETS +=	\
 run-client-${clib}-${cca}-${ccert}-${cv}-server-${slib}-${sca}-${scert}-${sv}
@@ -53,7 +53,8 @@ run-client-${clib}-${cca}-${ccert}-${cv}-server-${slib}-${sca}-${scert}-${sv}:\
 .if empty(${FAIL_${cca}_${sca}_${ccert}_${scert}_${cv}_${sv}})
 	grep '^success$$' server.out
 	grep '^success$$' client.out
-.else
+.elif ! ("${sv}" == certverify && "${ccert}" == nocert) || \
+    ("${cv}" == verify && "${scert}" != cert)
 	grep '^verify: fail' client.out server.out
 .endif
 
