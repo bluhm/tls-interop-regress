@@ -47,7 +47,7 @@ main(int argc, char *argv[])
 	SSL *ssl;
 	BIO *bio;
 	SSL_SESSION *session;
-	int error;
+	int error, verify = 0;
 	char buf[256], ch;
 	char *ca = NULL, *crt = NULL, *key = NULL;
 	char *host_port, *host = "127.0.0.1", *port = "0";
@@ -64,7 +64,7 @@ main(int argc, char *argv[])
 			key = optarg;
 			break;
 		case 'v':
-			/* verify, not yet */
+			verify = 1;
 			break;
 		default:
 			usage();
@@ -129,6 +129,8 @@ main(int argc, char *argv[])
 		if (SSL_CTX_load_verify_locations(ctx, ca, NULL) <= 0)
 			err_ssl(1, "SSL_CTX_load_verify_locations");
 	}
+	SSL_CTX_set_verify(ctx, verify ? SSL_VERIFY_PEER : SSL_VERIFY_NONE,
+	    verify_callback);
 
 	/* setup ssl and bio for socket operations */
 	ssl = SSL_new(ctx);

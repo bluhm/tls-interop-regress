@@ -133,3 +133,13 @@ err_ssl(int eval, const char *fmt, ...)
 	verrx(eval, fmt, ap);
 	va_end(ap);
 }
+
+int
+verify_callback(int preverify_ok, X509_STORE_CTX *x509_ctx)
+{
+	printf("verify: %s\n", preverify_ok ? "pass" : "fail");
+	if (fflush(stdout) != 0)
+		err(1, "fflush stdout");
+
+	return preverify_ok;
+}

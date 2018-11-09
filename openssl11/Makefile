@@ -15,7 +15,7 @@ DPADD =			/usr/local/lib/eopenssl11/libssl.a \
 LD_LIBRARY_PATH =	/usr/local/lib/eopenssl11
 REGRESS_TARGETS =	run-self
 .for p in ${PROGS}
-REGRESS_TARGETS +=	run-ldd-$p run-$p 
+REGRESS_TARGETS +=	run-ldd-$p run-$p
 .for x in nc self
 REGRESS_TARGETS +=	run-version-$x-$p run-protocol-$x-$p
 .endfor
