@@ -113,6 +113,12 @@ main(int argc, char *argv[])
 		if (SSL_CTX_check_private_key(ctx) <= 0)
 			err_ssl(1, "SSL_CTX_check_private_key");
 	}
+
+	/* verify server certificate */
+	if (ca != NULL) {
+		if (SSL_CTX_load_verify_locations(ctx, ca, NULL) <= 0)
+			err_ssl(1, "SSL_CTX_load_verify_locations");
+	}
 	SSL_CTX_set_verify(ctx, verify ? SSL_VERIFY_PEER : SSL_VERIFY_NONE,
 	    verify_callback);
 
