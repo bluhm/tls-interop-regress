@@ -1,5 +1,10 @@
 # $OpenBSD$
 
+run-client-openssl11-reuse-server-openssl11-reuse:
+	@echo '\n======== $@ ========'
+	# TLS 1.3 needs some extra setup for session reuse
+	@echo DISABLED
+
 CLEANFILES +=		*.out
 
 .for clib in libressl openssl openssl11
