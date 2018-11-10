@@ -18,7 +18,8 @@ run-reuse-client-openssl11-server-openssl11:
 
 REGRESS_TARGETS +=	run-reuse-client-${clib}-server-${slib}
 
-run-reuse-client-${clib}-server-${slib}: 127.0.0.1.crt
+run-reuse-client-${clib}-server-${slib}:\
+    127.0.0.1.crt ../${clib}/client ../${slib}/server
 	@echo '\n======== $@ ========'
 	LD_LIBRARY_PATH=/usr/local/lib/e${slib} \
 	    ../${slib}/server >${@:S/^run/server/}.out \

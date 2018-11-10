@@ -33,29 +33,29 @@ FAIL_${cca}_${sca}_${ccert}_${scert}_${cv}_${sv} = !
 REGRESS_TARGETS +=	\
 run-client-${clib}-${cca}-${ccert}-${cv}-server-${slib}-${sca}-${scert}-${sv}
 
-run-client-${clib}-${cca}-${ccert}-${cv}-server-${slib}-${sca}-${scert}-${sv}:\
+run-client-${clib}-${cca}-${ccert}-${cv}-server-${slib}-${sca}-${scert}-${sv}: \
     127.0.0.1.crt ca.crt fake-ca.crt client.crt server.crt \
     ../${clib}/client ../${slib}/server
 	@echo '\n======== $@ ========'
 	LD_LIBRARY_PATH=/usr/local/lib/e${slib} \
-	    ../${slib}/server >server.out \
+	    ../${slib}/server >${@:S/^run/server/}.out \
 	    ${sca:S/^noca//:S/^fakeca/-C fake-ca.crt/:S/^ca/-C ca.crt/} \
 	    ${scert:S/^nocert//:S/^cert/-c server.crt -k server.key/} \
 	    ${sv:S/^noverify//:S/^verify/-v/:S/^certverify/-vv/} \
 	    127.0.0.1 0
 	${FAIL_${cca}_${sca}_${ccert}_${scert}_${cv}_${sv}} \
 	    LD_LIBRARY_PATH=/usr/local/lib/e${clib} \
-	    ../${clib}/client >client.out \
+	    ../${clib}/client >${@:S/^run/client/}.out \
 	    ${cca:S/^noca//:S/^fakeca/-C fake-ca.crt/:S/^ca/-C ca.crt/} \
 	    ${ccert:S/^nocert//:S/^cert/-c server.crt -k server.key/} \
 	    ${cv:S/^noverify//:S/^verify/-v/} \
-	    `sed -n 's/listen sock: //p' server.out`
+	    `sed -n 's/listen sock: //p' ${@:S/^run/server/}.out`
 .if empty(${FAIL_${cca}_${sca}_${ccert}_${scert}_${cv}_${sv}})
-	grep '^success$$' server.out
-	grep '^success$$' client.out
+	grep '^success$$' ${@:S/^run/server/}.out
+	grep '^success$$' ${@:S/^run/client/}.out
 .elif ! ("${sv}" == certverify && "${ccert}" == nocert) || \
     ("${cv}" == verify && "${scert}" != cert)
-	grep '^verify: fail' client.out server.out
+	grep '^verify: fail' ${@:S/^run/client/}.out ${@:S/^run/server/}.out
 .endif
 
 .endfor
