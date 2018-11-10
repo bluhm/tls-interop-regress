@@ -12,10 +12,10 @@ LIBRARIES +=		openssl11
 
 .for clib in ${LIBRARIES}
 
-REGRESS_TARGETS +=	run-nc-client-${clib}-server-netcat
+REGRESS_TARGETS +=	run-netcat-client-${clib}-server-nc
 REGRESS_TARGETS +=	run-protocol-client-${clib}
 
-run-nc-client-${clib}-server-netcat: ../${clib}/client 127.0.0.1.crt
+run-netcat-client-${clib}-server-nc: ../${clib}/client 127.0.0.1.crt
 	@echo '\n======== $@ ========'
 	echo "greeting" | \
 	    nc >${@:S/^run/server/}.out \
@@ -40,9 +40,9 @@ run-nc-client-${clib}-server-netcat: ../${clib}/client 127.0.0.1.crt
 
 .for slib in ${LIBRARIES}
 
-REGRESS_TARGETS +=	run-nc-client-netcat-server-${slib}
+REGRESS_TARGETS +=	run-netcat-client-nc-server-${slib}
 
-run-nc-client-netcat-server-${slib}: ../${slib}/server 127.0.0.1.crt
+run-netcat-client-nc-server-${slib}: ../${slib}/server 127.0.0.1.crt
 	@echo '\n======== $@ ========'
 	LD_LIBRARY_PATH=/usr/local/lib/e${slib} \
 	    ../${slib}/server >${@:S/^run/server/}.out \
@@ -66,11 +66,11 @@ run-nc-client-netcat-server-${slib}: ../${slib}/server 127.0.0.1.crt
 
 REGRESS_TARGETS +=	run-protocol-client-${clib}
 
-run-protocol-client-${clib}: server-nc-client-${clib}-server-netcat.out
+run-protocol-client-${clib}: client-netcat-client-${clib}-server-nc.out
 	@echo '\n======== $@ ========'
 	# check that LibTLS protocol version is TLS 1.2
 	# XXX adapt when LibreSSL supports TLS 1.3
-	grep 'Protocol *: TLSv1.2' client-nc-client-${clib}-server-netcat.out
+	grep 'Protocol *: TLSv1.2' client-netcat-client-${clib}-server-nc.out
 
 .endfor
 
@@ -78,11 +78,11 @@ run-protocol-client-${clib}: server-nc-client-${clib}-server-netcat.out
 
 REGRESS_TARGETS +=	run-protocol-server-${slib}
 
-run-protocol-server-${slib}: server-nc-client-netcat-server-${slib}.out
+run-protocol-server-${slib}: server-netcat-client-nc-server-${slib}.out
 	@echo '\n======== $@ ========'
 	# check that LibTLS protocol version is TLS 1.2
 	# XXX adapt when LibreSSL supports TLS 1.3
-	grep 'Protocol *: TLSv1.2' server-nc-client-netcat-server-${slib}.out
+	grep 'Protocol *: TLSv1.2' server-netcat-client-nc-server-${slib}.out
 
 .endfor
 

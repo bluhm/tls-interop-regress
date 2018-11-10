@@ -8,7 +8,7 @@ LIBRARIES +=		openssl
 LIBRARIES +=		openssl11
 .endif
 
-run-reuse-client-openssl11-server-openssl11:
+run-session-client-openssl11-server-openssl11:
 	@echo '\n======== $@ ========'
 	# TLS 1.3 needs some extra setup for session reuse
 	@echo DISABLED
@@ -16,9 +16,9 @@ run-reuse-client-openssl11-server-openssl11:
 .for clib in ${LIBRARIES}
 .for slib in ${LIBRARIES}
 
-REGRESS_TARGETS +=	run-reuse-client-${clib}-server-${slib}
+REGRESS_TARGETS +=	run-session-client-${clib}-server-${slib}
 
-run-reuse-client-${clib}-server-${slib}:\
+run-session-client-${clib}-server-${slib}: \
     127.0.0.1.crt ../${clib}/client ../${slib}/server
 	@echo '\n======== $@ ========'
 	LD_LIBRARY_PATH=/usr/local/lib/e${slib} \

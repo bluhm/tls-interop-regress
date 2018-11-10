@@ -30,10 +30,9 @@ FAIL_${cca}_${sca}_${ccert}_${scert}_${cv}_${sv} = !
 .for clib in ${LIBRARIES}
 .for slib in ${LIBRARIES}
 
-REGRESS_TARGETS +=	\
-run-client-${clib}-${cca}-${ccert}-${cv}-server-${slib}-${sca}-${scert}-${sv}
+REGRESS_TARGETS +=	run-cert-client-${clib}-${cca}-${ccert}-${cv}-server-${slib}-${sca}-${scert}-${sv}
 
-run-client-${clib}-${cca}-${ccert}-${cv}-server-${slib}-${sca}-${scert}-${sv}: \
+run-cert-client-${clib}-${cca}-${ccert}-${cv}-server-${slib}-${sca}-${scert}-${sv}: \
     127.0.0.1.crt ca.crt fake-ca.crt client.crt server.crt \
     ../${clib}/client ../${slib}/server
 	@echo '\n======== $@ ========'
