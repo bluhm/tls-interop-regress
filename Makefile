@@ -2,6 +2,7 @@
 
 SUBDIR =	libressl openssl openssl11
 # the above binaries must have been built before we can continue
+SUBDIR +=	netcat
 SUBDIR +=	session
 SUBDIR +=	cert
 
