@@ -1,12 +1,11 @@
 # $OpenBSD$
 
-CLEANFILES +=		*.out *.fstat
-
 # run netcat server and connect with test client
 
 .for clib in libressl openssl openssl11
 
 REGRESS_TARGETS +=	run-nc-client-${clib}-server-netcat
+REGRESS_TARGETS +=	run-protocol-client-${clib}
 
 run-nc-client-${clib}-server-netcat: ../${clib}/client 127.0.0.1.crt
 	@echo '\n======== $@ ========'
@@ -50,6 +49,32 @@ run-nc-client-netcat-server-${slib}: ../${slib}/server 127.0.0.1.crt
 	grep -q '^<<< hello$$' ${@:S/run/server/}.out
 	# client must have read server greeting
 	grep -q '^greeting$$' ${@:S/run/client/}.out
+
+.endfor
+
+# check the TLS protocol version in client and server logs
+
+.for clib in libressl openssl openssl11
+
+REGRESS_TARGETS +=	run-protocol-client-${clib}
+
+run-protocol-client-${clib}: server-nc-client-${clib}-server-netcat.out
+	@echo '\n======== $@ ========'
+	# check that LibTLS protocol version is TLS 1.2
+	# XXX adapt when LibreSSL supports TLS 1.3
+	grep 'Protocol *: TLSv1.2' client-nc-client-${clib}-server-netcat.out
+
+.endfor
+
+.for slib in libressl openssl openssl11
+
+REGRESS_TARGETS +=	run-protocol-server-${slib}
+
+run-protocol-server-${slib}: server-nc-client-netcat-server-${slib}.out
+	@echo '\n======== $@ ========'
+	# check that LibTLS protocol version is TLS 1.2
+	# XXX adapt when LibreSSL supports TLS 1.3
+	grep 'Protocol *: TLSv1.2' server-nc-client-netcat-server-${slib}.out
 
 .endfor
 

@@ -28,7 +28,7 @@ run-version-$p: $p-self.out
 
 run-protocol-$p: $p-self.out
 	@echo '\n======== $@ ========'
-	# check that protocol version is TLS 1.2
+	# check that LibreSSL protocol version is TLS 1.2
 	# XXX adapt when LibreSSL supports TLS 1.3
 	grep 'Protocol *: TLSv1.2' $p-self.out
 

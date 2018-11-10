@@ -13,12 +13,9 @@ LDADD =			-lssl -lcrypto
 DPADD =			/usr/local/lib/eopenssl11/libssl.a \
 			/usr/local/lib/eopenssl11/libcrypto.a
 LD_LIBRARY_PATH =	/usr/local/lib/eopenssl11
-REGRESS_TARGETS =	run-self
+REGRESS_TARGETS =	run-self-client-server
 .for p in ${PROGS}
-REGRESS_TARGETS +=	run-ldd-$p run-$p
-.for x in nc self
-REGRESS_TARGETS +=	run-version-$x-$p run-protocol-$x-$p
-.endfor
+REGRESS_TARGETS +=	run-ldd-$p run-version-$p run-protocol-$p
 .endfor
 
 run-protocol-nc-client run-protocol-nc-server:
@@ -27,6 +24,7 @@ run-protocol-nc-client run-protocol-nc-server:
 	@echo DISABLED
 
 .for p in ${PROGS}
+
 run-ldd-$p: ldd-$p.out
 	@echo '\n======== $@ ========'
 	# check that $p is linked with OpenSSL 1.1
@@ -34,18 +32,17 @@ run-ldd-$p: ldd-$p.out
 	grep -q /usr/local/lib/eopenssl11/libssl.so ldd-$p.out
 	# check that $p is not linked with LibreSSL
 	! grep -v libc.so ldd-$p.out | grep /usr/lib/
-.endfor
 
-.for o in nc-client nc-server self-client self-server
-run-version-$o: $o.out
+run-version-$p: $p-self.out
 	@echo '\n======== $@ ========'
 	# check that runtime version is OpenSSL 1.1
-	grep 'SSLEAY_VERSION: OpenSSL 1.1' $o.out
+	grep 'SSLEAY_VERSION: OpenSSL 1.1' $p-self.out
 
-run-protocol-$o: $o.out
+run-protocol-$p: $p-self.out
 	@echo '\n======== $@ ========'
-	# check that protocol version is TLS 1.3
-	grep 'Protocol *: TLSv1.3' $o.out
+	# check that OpenSSL 1.1 protocol version is TLS 1.3
+	grep 'Protocol *: TLSv1.3' $p-self.out
+
 .endfor
 
 .include <bsd.regress.mk>

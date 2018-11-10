@@ -6,8 +6,6 @@ regress:
 	@echo SKIPPED
 .endif
 
-CLEANFILES +=	client.out server.out
-
 .for cca in noca ca fakeca
 .for sca in noca ca fakeca
 .for ccert in nocert cert
