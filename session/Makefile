@@ -1,4 +1,4 @@
-# $OpenBSD$
+# $OpenBSD: Makefile,v 1.1 2018/11/10 08:33:45 bluhm Exp $
 
 run-client-openssl11-reuse-server-openssl11-reuse:
 	@echo '\n======== $@ ========'
