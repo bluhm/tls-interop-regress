@@ -66,4 +66,12 @@ run-cert-client-${clib}-${cca}-${ccert}-${cv}-server-${slib}-${sca}-${scert}-${s
 .endfor
 .endfor
 
+# argument list too long for a single rm *
+
+clean: _SUBDIRUSE
+	rm -f client-*.out
+	rm -f server-*.out
+	rm -f a.out [Ee]rrs mklog *.core y.tab.h \
+	    ${PROG} ${PROGS} ${OBJS} ${_LEXINTM} ${_YACCINTM} ${CLEANFILES}
+
 .include <bsd.regress.mk>
