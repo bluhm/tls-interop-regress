@@ -1,12 +1,20 @@
 # $OpenBSD: Makefile,v 1.1 2018/11/10 08:33:45 bluhm Exp $
 
+LIBRARIES =		libressl
+.if exists(/usr/local/bin/eopenssl)
+LIBRARIES +=		openssl
+.endif
+.if exists(/usr/local/bin/eopenssl11)
+LIBRARIES +=		openssl11
+.endif
+
 run-client-openssl11-reuse-server-openssl11-reuse:
 	@echo '\n======== $@ ========'
 	# TLS 1.3 needs some extra setup for session reuse
 	@echo DISABLED
 
-.for clib in libressl openssl openssl11
-.for slib in libressl openssl openssl11
+.for clib in ${LIBRARIES}
+.for slib in ${LIBRARIES}
 
 REGRESS_TARGETS +=	run-client-${clib}-reuse-server-${slib}-reuse
 

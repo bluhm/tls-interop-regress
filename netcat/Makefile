@@ -1,8 +1,16 @@
 # $OpenBSD$
 
+LIBRARIES =		libressl
+.if exists(/usr/local/bin/eopenssl)
+LIBRARIES +=		openssl
+.endif
+.if exists(/usr/local/bin/eopenssl11)
+LIBRARIES +=		openssl11
+.endif
+
 # run netcat server and connect with test client
 
-.for clib in libressl openssl openssl11
+.for clib in ${LIBRARIES}
 
 REGRESS_TARGETS +=	run-nc-client-${clib}-server-netcat
 REGRESS_TARGETS +=	run-protocol-client-${clib}
@@ -30,7 +38,7 @@ run-nc-client-${clib}-server-netcat: ../${clib}/client 127.0.0.1.crt
 
 # run test server and connect with netcat client
 
-.for slib in libressl openssl openssl11
+.for slib in ${LIBRARIES}
 
 REGRESS_TARGETS +=	run-nc-client-netcat-server-${slib}
 
@@ -54,7 +62,7 @@ run-nc-client-netcat-server-${slib}: ../${slib}/server 127.0.0.1.crt
 
 # check the TLS protocol version in client and server logs
 
-.for clib in libressl openssl openssl11
+.for clib in ${LIBRARIES}
 
 REGRESS_TARGETS +=	run-protocol-client-${clib}
 
@@ -66,7 +74,7 @@ run-protocol-client-${clib}: server-nc-client-${clib}-server-netcat.out
 
 .endfor
 
-.for slib in libressl openssl openssl11
+.for slib in ${LIBRARIES}
 
 REGRESS_TARGETS +=	run-protocol-server-${slib}
 

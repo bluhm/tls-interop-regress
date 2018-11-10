@@ -1,9 +1,11 @@
 # $OpenBSD: Makefile,v 1.1 2018/11/09 06:30:41 bluhm Exp $
 
-.if ! exists(/usr/local/bin/eopenssl) || ! exists(/usr/local/bin/eopenssl11)
-regress:
-	# install openssl-1.0.2p and openssl-1.1.1 from ports
-	@echo SKIPPED
+LIBRARIES =		libressl
+.if exists(/usr/local/bin/eopenssl)
+LIBRARIES +=		openssl
+.endif
+.if exists(/usr/local/bin/eopenssl11)
+LIBRARIES +=		openssl11
 .endif
 
 .for cca in noca ca fakeca
@@ -25,8 +27,8 @@ FAIL_${cca}_${sca}_${ccert}_${scert}_${cv}_${sv} =
 FAIL_${cca}_${sca}_${ccert}_${scert}_${cv}_${sv} = !
 .endif
 
-.for clib in libressl openssl openssl11
-.for slib in libressl openssl openssl11
+.for clib in ${LIBRARIES}
+.for slib in ${LIBRARIES}
 
 REGRESS_TARGETS +=	\
 run-client-${clib}-${cca}-${ccert}-${cv}-server-${slib}-${sca}-${scert}-${sv}
