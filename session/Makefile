@@ -8,7 +8,7 @@ LIBRARIES +=		openssl
 LIBRARIES +=		openssl11
 .endif
 
-run-client-openssl11-reuse-server-openssl11-reuse:
+run-reuse-client-openssl11-server-openssl11:
 	@echo '\n======== $@ ========'
 	# TLS 1.3 needs some extra setup for session reuse
 	@echo DISABLED
@@ -16,26 +16,26 @@ run-client-openssl11-reuse-server-openssl11-reuse:
 .for clib in ${LIBRARIES}
 .for slib in ${LIBRARIES}
 
-REGRESS_TARGETS +=	run-client-${clib}-reuse-server-${slib}-reuse
+REGRESS_TARGETS +=	run-reuse-client-${clib}-server-${slib}
 
-run-client-${clib}-reuse-server-${slib}-reuse: 127.0.0.1.crt
+run-reuse-client-${clib}-server-${slib}: 127.0.0.1.crt
 	@echo '\n======== $@ ========'
 	LD_LIBRARY_PATH=/usr/local/lib/e${slib} \
-	    ../${slib}/server >server-${slib}-reuse.out \
+	    ../${slib}/server >${@:S/^run/server/}.out \
 	    -ss \
 	    127.0.0.1 0
 	LD_LIBRARY_PATH=/usr/local/lib/e${clib} \
-	    ../${clib}/client >client-${clib}-reuse.out \
+	    ../${clib}/client >${@:S/^run/client/}.out \
 	    -ss \
-	    `sed -n 's/listen sock: //p' server-${slib}-reuse.out`
-	grep '^success$$' server-${slib}-reuse.out
-	grep '^success$$' client-${clib}-reuse.out
-	grep '^session 2: new$$' server-${slib}-reuse.out
-	grep '^session 2: new$$' client-${clib}-reuse.out
-	grep '^session 1: reuse$$' server-${slib}-reuse.out
-	grep '^session 1: reuse$$' client-${clib}-reuse.out
-	grep '^session 0: reuse$$' server-${slib}-reuse.out
-	grep '^session 0: reuse$$' client-${clib}-reuse.out
+	    `sed -n 's/listen sock: //p' ${@:S/^run/server/}.out`
+	grep '^success$$' ${@:S/^run/server/}.out
+	grep '^success$$' ${@:S/^run/client/}.out
+	grep '^session 2: new$$' ${@:S/^run/server/}.out
+	grep '^session 2: new$$' ${@:S/^run/client/}.out
+	grep '^session 1: reuse$$' ${@:S/^run/server/}.out
+	grep '^session 1: reuse$$' ${@:S/^run/client/}.out
+	grep '^session 0: reuse$$' ${@:S/^run/server/}.out
+	grep '^session 0: reuse$$' ${@:S/^run/client/}.out
 
 .endfor
 .endfor
