@@ -10,13 +10,21 @@ REGRESS_TARGETS +=	run-client-${clib}-reuse-server-${slib}-reuse
 run-client-${clib}-reuse-server-${slib}-reuse: 127.0.0.1.crt
 	@echo '\n======== $@ ========'
 	LD_LIBRARY_PATH=/usr/local/lib/e${slib} \
-	    ../${slib}/server -s >server-${clib}-reuse.out \
+	    ../${slib}/server >server-${clib}-reuse.out \
+	    -ss \
 	    127.0.0.1 0
 	LD_LIBRARY_PATH=/usr/local/lib/e${clib} \
-	    ../${clib}/client -s >client-${clib}-reuse.out \
+	    ../${clib}/client >client-${clib}-reuse.out \
+	    -ss \
 	    `sed -n 's/listen sock: //p' server-${slib}-reuse.out`
 	grep '^success$$' server-${slib}-reuse.out
 	grep '^success$$' client-${clib}-reuse.out
+	grep '^session 2: new$$' server-${slib}-reuse.out
+	grep '^session 2: new$$' client-${clib}-reuse.out
+	grep '^session 1: reuse$$' server-${slib}-reuse.out
+	grep '^session 1: reuse$$' client-${clib}-reuse.out
+	grep '^session 0: reuse$$' server-${slib}-reuse.out
+	grep '^session 0: reuse$$' client-${clib}-reuse.out
 
 .endfor
 .endfor

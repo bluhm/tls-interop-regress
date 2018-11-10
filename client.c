@@ -64,7 +64,8 @@ main(int argc, char *argv[])
 			key = optarg;
 			break;
 		case 's':
-			sessionreuse = 1;
+			/* multiple reueses are possible */
+			sessionreuse++;
 			break;
 		case 'v':
 			verify = 1;
@@ -155,8 +156,8 @@ main(int argc, char *argv[])
 		SSL_set_bio(ssl, bio, bio);
 		if ((error = SSL_connect(ssl)) <= 0)
 			err_ssl(1, "SSL_connect %d", error);
-		printf("session reuse %d: %s\n", sessionreuse,
-		    SSL_session_reused(ssl) ? "reused" : "new");
+		printf("session %d: %s\n", sessionreuse,
+		    SSL_session_reused(ssl) ? "reuse" : "new");
 		if (fflush(stdout) != 0)
 			err(1, "fflush stdout");
 

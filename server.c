@@ -65,7 +65,8 @@ main(int argc, char *argv[])
 			key = optarg;
 			break;
 		case 's':
-			sessionreuse = 1;
+			/* multiple reueses are possible */
+			sessionreuse++;
 			break;
 		case 'v':
 			/* use twice to force client cert */
@@ -164,7 +165,7 @@ main(int argc, char *argv[])
 	/* fork to background and set timeout */
 	if (daemon(1, 1) == -1)
 		err(1, "daemon");
-	if ((int)alarm(60) == -1)
+	if ((int)alarm(10) == -1)
 		err(1, "alarm");
 
 	do {
@@ -186,8 +187,8 @@ main(int argc, char *argv[])
 		SSL_set_bio(ssl, cbio, cbio);
 		if ((error = SSL_accept(ssl)) <= 0)
 			err_ssl(1, "SSL_accept %d", error);
-		printf("session reuse %d: %s\n", sessionreuse,
-		    SSL_session_reused(ssl) ? "reused" : "new");
+		printf("session %d: %s\n", sessionreuse,
+		    SSL_session_reused(ssl) ? "reuse" : "new");
 		if (fflush(stdout) != 0)
 			err(1, "fflush stdout");
 
