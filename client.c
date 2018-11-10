@@ -131,14 +131,10 @@ main(int argc, char *argv[])
 	}
 
 	do {
-		/* setup ssl and bio for socket operations */
-		ssl = SSL_new(ctx);
-		if (ssl == NULL)
-			err_ssl(1, "SSL_new");
+		/* setup bio for socket operations */
 		bio = BIO_new_connect(host_port);
 		if (bio == NULL)
 			err_ssl(1, "BIO_new_connect");
-		print_ciphers(SSL_get_ciphers(ssl));
 
 		/* connect */
 		if (BIO_do_connect(bio) <= 0)
@@ -148,12 +144,17 @@ main(int argc, char *argv[])
 		printf("connect ");
 		print_peername(bio);
 
-		/* resuse session if possible, do ssl client handshake */
+		/* do ssl client handshake */
+		ssl = SSL_new(ctx);
+		if (ssl == NULL)
+			err_ssl(1, "SSL_new");
+		print_ciphers(SSL_get_ciphers(ssl));
+		SSL_set_bio(ssl, bio, bio);
+		/* resuse session if possible */
 		if (session != NULL) {
 			if (SSL_set_session(ssl, session) <= 0)
 				err_ssl(1, "SSL_set_session");
 		}
-		SSL_set_bio(ssl, bio, bio);
 		if ((error = SSL_connect(ssl)) <= 0)
 			err_ssl(1, "SSL_connect %d", error);
 		printf("session %d: %s\n", sessionreuse,

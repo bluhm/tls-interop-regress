@@ -169,12 +169,7 @@ main(int argc, char *argv[])
 		err(1, "alarm");
 
 	do {
-		/* setup ssl and accept connection */
-		ssl = SSL_new(ctx);
-		if (ssl == NULL)
-			err_ssl(1, "SSL_new");
-		print_ciphers(SSL_get_ciphers(ssl));
-
+		/* accept connection */
 		if (BIO_do_accept(abio) <= 0)
 			err_ssl(1, "BIO_do_accept wait");
 		cbio = BIO_pop(abio);
@@ -184,6 +179,10 @@ main(int argc, char *argv[])
 		print_peername(cbio);
 
 		/* do ssl server handshake */
+		ssl = SSL_new(ctx);
+		if (ssl == NULL)
+			err_ssl(1, "SSL_new");
+		print_ciphers(SSL_get_ciphers(ssl));
 		SSL_set_bio(ssl, cbio, cbio);
 		if ((error = SSL_accept(ssl)) <= 0)
 			err_ssl(1, "SSL_accept %d", error);
