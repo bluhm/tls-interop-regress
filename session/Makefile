@@ -10,7 +10,7 @@ REGRESS_TARGETS +=	run-client-${clib}-reuse-server-${slib}-reuse
 run-client-${clib}-reuse-server-${slib}-reuse: 127.0.0.1.crt
 	@echo '\n======== $@ ========'
 	LD_LIBRARY_PATH=/usr/local/lib/e${slib} \
-	    ../${slib}/server >server-${clib}-reuse.out \
+	    ../${slib}/server >server-${slib}-reuse.out \
 	    -ss \
 	    127.0.0.1 0
 	LD_LIBRARY_PATH=/usr/local/lib/e${clib} \
