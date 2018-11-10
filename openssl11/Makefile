@@ -18,11 +18,6 @@ REGRESS_TARGETS =	run-self-client-server
 REGRESS_TARGETS +=	run-ldd-$p run-version-$p run-protocol-$p
 .endfor
 
-run-protocol-nc-client run-protocol-nc-server:
-	@echo '\n======== $@ ========'
-	# LibreSSL does not support TLS 1.3 yet
-	@echo DISABLED
-
 .for p in ${PROGS}
 
 run-ldd-$p: ldd-$p.out

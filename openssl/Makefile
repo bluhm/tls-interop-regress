@@ -19,6 +19,7 @@ REGRESS_TARGETS +=	run-ldd-$p run-version-$p run-protocol-$p
 .endfor
 
 .for p in ${PROGS}
+
 run-ldd-$p: ldd-$p.out
 	@echo '\n======== $@ ========'
 	# check that $p is linked with OpenSSL
