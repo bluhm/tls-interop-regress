@@ -36,7 +36,7 @@ void __dead
 usage(void)
 {
 	fprintf(stderr,
-	    "usage: server [-svv] [-C CA] [-c crt -k key] [host port]");
+	    "usage: server [-Lsvv] [-C CA] [-c crt -k key] [host port]\n");
 	exit(2);
 }
 
@@ -48,12 +48,12 @@ main(int argc, char *argv[])
 	SSL *ssl;
 	BIO *abio, *cbio;
 	SSL_SESSION *session;
-	int ch, error, sessionreuse = 0, verify = 0;
+	int ch, error, listciphers = 0, sessionreuse = 0, verify = 0;
 	char buf[256];
 	char *ca = NULL, *crt = NULL, *key = NULL;
 	char *host_port, *host = "127.0.0.1", *port = "0";
 
-	while ((ch = getopt(argc, argv, "C:c:k:sv")) != -1) {
+	while ((ch = getopt(argc, argv, "C:c:k:Lsv")) != -1) {
 		switch (ch) {
 		case 'C':
 			ca = optarg;
@@ -63,6 +63,9 @@ main(int argc, char *argv[])
 			break;
 		case 'k':
 			key = optarg;
+			break;
+		case 'L':
+			listciphers = 1;
 			break;
 		case 's':
 			/* multiple reueses are possible */
@@ -81,7 +84,7 @@ main(int argc, char *argv[])
 	if (argc == 2) {
 		host = argv[0];
 		port = argv[1];
-	} else if (argc != 0) {
+	} else if (argc != 0 && !listciphers) {
 		usage();
 	}
 	if (asprintf(&host_port, strchr(host, ':') ? "[%s]:%s" : "%s:%s",
@@ -151,6 +154,14 @@ main(int argc, char *argv[])
 			err_ssl(1, "SSL_CTX_set_session_id_context");
 	}
 
+	if (listciphers) {
+		ssl = SSL_new(ctx);
+		if (ssl == NULL)
+			err_ssl(1, "SSL_new");
+		print_ciphers(SSL_get_ciphers(ssl));
+		return 0;
+	}
+
 	/* setup bio for socket operations */
 	abio = BIO_new_accept(host_port);
 	if (abio == NULL)
@@ -182,7 +193,6 @@ main(int argc, char *argv[])
 		ssl = SSL_new(ctx);
 		if (ssl == NULL)
 			err_ssl(1, "SSL_new");
-		print_ciphers(SSL_get_ciphers(ssl));
 		SSL_set_bio(ssl, cbio, cbio);
 		if ((error = SSL_accept(ssl)) <= 0)
 			err_ssl(1, "SSL_accept %d", error);
