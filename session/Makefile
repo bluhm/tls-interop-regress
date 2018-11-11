@@ -29,7 +29,8 @@ run-session-client-${clib}-server-${slib}: \
 	    ../${clib}/client >${@:S/^run/client/}.out \
 	    -ss \
 	    `sed -n 's/listen sock: //p' ${@:S/^run/server/}.out`
-	grep '^success$$' ${@:S/^run/server/}.out
+	grep '^success$$' ${@:S/^run/server/}.out || \
+	    { sleep 1; grep '^success$$' ${@:S/^run/server/}.out; }
 	grep '^success$$' ${@:S/^run/client/}.out
 	grep '^session 2: new$$' ${@:S/^run/server/}.out
 	grep '^session 2: new$$' ${@:S/^run/client/}.out

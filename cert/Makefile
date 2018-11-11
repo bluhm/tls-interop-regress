@@ -50,7 +50,8 @@ run-cert-client-${clib}-${cca}-${ccert}-${cv}-server-${slib}-${sca}-${scert}-${s
 	    ${cv:S/^noverify//:S/^verify/-v/} \
 	    `sed -n 's/listen sock: //p' ${@:S/^run/server/}.out`
 .if empty(${FAIL_${cca}_${sca}_${ccert}_${scert}_${cv}_${sv}})
-	grep '^success$$' ${@:S/^run/server/}.out
+	grep '^success$$' ${@:S/^run/server/}.out || \
+	    { sleep 1; grep '^success$$' ${@:S/^run/server/}.out; }
 	grep '^success$$' ${@:S/^run/client/}.out
 .elif ! ("${sv}" == certverify && "${ccert}" == nocert) || \
     ("${cv}" == verify && "${scert}" != cert)
