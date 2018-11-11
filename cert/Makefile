@@ -1,4 +1,4 @@
-# $OpenBSD: Makefile,v 1.2 2018/11/11 00:15:04 bluhm Exp $
+# $OpenBSD: Makefile,v 1.3 2018/11/11 07:39:34 bluhm Exp $
 
 LIBRARIES =		libressl
 .if exists(/usr/local/bin/eopenssl)
