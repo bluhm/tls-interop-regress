@@ -34,8 +34,8 @@ void __dead usage(void);
 void __dead
 usage(void)
 {
-	fprintf(stderr,
-	    "usage: client [-Lsv] [-C CA] [-c crt -k key] host port\n");
+	fprintf(stderr, "usage: client [-Lsv] [-C CA] [-c crt -k key] "
+	    "[-l cipers] host port\n");
 	exit(2);
 }
 
@@ -49,11 +49,11 @@ main(int argc, char *argv[])
 	SSL_SESSION *session = NULL;
 	int ch, error, listciphers = 0, sessionreuse = 0, verify = 0;
 	char buf[256];
-	char *ca = NULL, *crt = NULL, *key = NULL;
+	char *ca = NULL, *crt = NULL, *key = NULL, *ciphers = NULL;
 	char *host_port, *host = "127.0.0.1", *port = "0";
 
 
-	while ((ch = getopt(argc, argv, "C:c:k:Lsv")) != -1) {
+	while ((ch = getopt(argc, argv, "C:c:k:Ll:sv")) != -1) {
 		switch (ch) {
 		case 'C':
 			ca = optarg;
@@ -66,6 +66,9 @@ main(int argc, char *argv[])
 			break;
 		case 'L':
 			listciphers = 1;
+			break;
+		case 'l':
+			ciphers = optarg;
 			break;
 		case 's':
 			/* multiple reueses are possible */
@@ -132,6 +135,11 @@ main(int argc, char *argv[])
 
 	if (sessionreuse) {
 		SSL_CTX_set_session_cache_mode(ctx, SSL_SESS_CACHE_CLIENT);
+	}
+
+	if (ciphers) {
+		if (SSL_CTX_set_cipher_list(ctx, ciphers) <= 0)
+			err_ssl(1, "SSL_CTX_set_cipher_list");
 	}
 
 	if (listciphers) {
