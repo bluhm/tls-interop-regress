@@ -60,13 +60,13 @@ client.crt server.crt: ca.crt ${@:R}.req
 	    -req -in ${@:R}.req -out $@
 
 dsa.key:
-	openssl dsaparam -genkey -out $@ 1024
+	openssl dsaparam -genkey -out $@ 2048
 
 ec.key:
-	openssl ecparam -genkey -name brainpoolP160r1 -out $@
+	openssl ecparam -genkey -name secp256r1 -out $@
 
 rsa.key:
-	openssl genrsa -out $@ 1024
+	openssl genrsa -out $@ 2048
 
 dsa.req ec.req rsa.req: ${@:R}.key
 	openssl req -batch -new \
