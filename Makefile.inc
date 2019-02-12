@@ -38,7 +38,7 @@ run-self-client-server: client server 127.0.0.1.crt
 CLEANFILES +=		127.0.0.1.{crt,key} \
 			ca.{crt,key,srl} fake-ca.{crt,key} \
 			{client,server}.{req,crt,key} \
-			{dsa,rsa}.{param,key,req,crt}
+			{dsa,ec,rsa}.{key,req,crt}
 
 127.0.0.1.crt:
 	openssl req -batch -new \
@@ -59,20 +59,20 @@ client.crt server.crt: ca.crt ${@:R}.req
 	openssl x509 -CAcreateserial -CAkey ca.key -CA ca.crt \
 	    -req -in ${@:R}.req -out $@
 
-dsa.param:
-	openssl dsaparam -out $@ 1024
+dsa.key:
+	openssl dsaparam -genkey -out $@ 1024
 
-dsa.key: dsa.param
-	openssl gendsa -out $@ dsa.param
+ec.key:
+	openssl ecparam -genkey -name brainpoolP160r1 -out $@
 
 rsa.key:
 	openssl genrsa -out $@ 1024
 
-dsa.req rsa.req: ${@:R}.key
+dsa.req ec.req rsa.req: ${@:R}.key
 	openssl req -batch -new \
 	    -subj /L=OpenBSD/O=tls-regress/OU=${@:R}/CN=localhost/ \
 	    -nodes -key ${@:R}.key -out $@
 
-dsa.crt rsa.crt: ca.crt ${@:R}.req
+dsa.crt ec.crt rsa.crt: ca.crt ${@:R}.req
 	openssl x509 -CAcreateserial -CAkey ca.key -CA ca.crt \
 	    -req -in ${@:R}.req -out $@
