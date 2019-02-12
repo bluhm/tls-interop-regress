@@ -18,7 +18,7 @@ client-${clib}.ciphers:
 	rm $@.tmp
 .endfor
 .for slib in ${LIBRARIES}
-server-${slib}.ciphers: 127.0.0.1.crt
+server-${slib}.ciphers: 127.0.0.1.crt dsa.crt ec.crt rsa.crt
 	LD_LIBRARY_PATH=/usr/local/lib/e${slib} \
 	    ../${slib}/server -L >$@.tmp
 	sed -n 's/^cipher //p' <$@.tmp | sort -u >$@
@@ -57,12 +57,24 @@ regress: ciphers.mk
 .for clib in ${LIBRARIES}
 .for slib in ${LIBRARIES}
 .for cipher in ${CIPHERS_${clib}_${slib}}
+
+.if "${cipher:M*-DSS-*}" != ""
+TYPE_${cipher} =	dsa
+.elif "${cipher:M*-ECDSA-*}" != ""
+TYPE_${cipher} =	ec
+.elif "${cipher:M*-RSA-*}" != ""
+TYPE_${cipher} =	rsa
+.else
+TYPE_${cipher} =	127.0.0.1
+.endif
+
 REGRESS_TARGETS +=	run-cipher-${cipher}-client-${clib}-server-${slib}
 run-cipher-${cipher}-client-${clib}-server-${slib}: \
-    127.0.0.1.crt ../${clib}/client ../${slib}/server
+    127.0.0.1.crt ${TYPE_${cipher}}.crt ../${clib}/client ../${slib}/server
 	@echo '\n======== $@ ========'
 	LD_LIBRARY_PATH=/usr/local/lib/e${slib} \
 	    ../${slib}/server >${@:S/^run/server/}.out \
+	    -c ${TYPE_${cipher}}.crt -k ${TYPE_${cipher}}.key \
 	    -l ${cipher} \
 	    127.0.0.1 0
 	LD_LIBRARY_PATH=/usr/local/lib/e${clib} \
@@ -74,6 +86,7 @@ run-cipher-${cipher}-client-${clib}-server-${slib}: \
 	grep '^success$$' ${@:S/^run/client/}.out
 	grep ' Cipher *: ${cipher}$$' ${@:S/^run/server/}.out
 	grep ' Cipher *: ${cipher}$$' ${@:S/^run/client/}.out
+
 .endfor
 .endfor
 .endfor
