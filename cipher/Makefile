@@ -62,6 +62,8 @@ regress: ciphers.mk
 TYPE_${cipher} =	dsa
 .elif "${cipher:M*-ECDSA-*}" != ""
 TYPE_${cipher} =	ec
+.elif "${cipher:M*-GOST89-*}" != ""
+TYPE_${cipher} =	gost
 .elif "${cipher:M*-RSA-*}" != ""
 TYPE_${cipher} =	rsa
 .else
