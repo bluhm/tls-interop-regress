@@ -36,7 +36,7 @@ void __dead
 usage(void)
 {
 	fprintf(stderr, "usage: server [-Lsvv] [-C CA] [-c crt -k key] "
-	    "[-l cipers] [host port]\n");
+	    "[-l cipers] [-p dhparam] [host port]\n");
 	exit(2);
 }
 
@@ -49,11 +49,11 @@ main(int argc, char *argv[])
 	BIO *abio, *cbio;
 	SSL_SESSION *session;
 	int ch, error, listciphers = 0, sessionreuse = 0, verify = 0;
-	char buf[256];
+	char buf[256], *dhparam = NULL;
 	char *ca = NULL, *crt = NULL, *key = NULL, *ciphers = NULL;
 	char *host_port, *host = "127.0.0.1", *port = "0";
 
-	while ((ch = getopt(argc, argv, "C:c:k:Ll:sv")) != -1) {
+	while ((ch = getopt(argc, argv, "C:c:k:Ll:p:sv")) != -1) {
 		switch (ch) {
 		case 'C':
 			ca = optarg;
@@ -69,6 +69,9 @@ main(int argc, char *argv[])
 			break;
 		case 'l':
 			ciphers = optarg;
+			break;
+		case 'p':
+			dhparam = optarg;
 			break;
 		case 's':
 			/* multiple reueses are possible */
@@ -117,6 +120,27 @@ main(int argc, char *argv[])
 	ctx = SSL_CTX_new(method);
 	if (ctx == NULL)
 		err_ssl(1, "SSL_CTX_new");
+
+#if OPENSSL_VERSION_NUMBER >= 0x10100000
+	/* needed to use DHE cipher with libressl */
+	if (SSL_CTX_set_dh_auto(ctx, 1) <= 0)
+		err_ssl(1, "SSL_CTX_set_dh_auto");
+#else
+	if (dhparam != NULL) {
+		DH *dh;
+		FILE *file;
+
+		file = fopen(dhparam, "r");
+		if (file == NULL)
+			err(1, "fopen %s", dhparam);
+		dh = PEM_read_DHparams(file, NULL, NULL, NULL);
+		if (dh == NULL)
+			err_ssl(1, "PEM_read_DHparams");
+		if (SSL_CTX_set_tmp_dh(ctx, dh) <= 0)
+			err_ssl(1, "SSL_CTX_set_tmp_dh");
+		fclose(file);
+	}
+#endif
 
 	/* needed when linking with OpenSSL 1.0.2p */
 	if (SSL_CTX_set_ecdh_auto(ctx, 1) <= 0)

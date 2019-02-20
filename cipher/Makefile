@@ -71,13 +71,14 @@ TYPE_${cipher} =	127.0.0.1
 .endif
 
 REGRESS_TARGETS +=	run-cipher-${cipher}-client-${clib}-server-${slib}
-run-cipher-${cipher}-client-${clib}-server-${slib}: \
+run-cipher-${cipher}-client-${clib}-server-${slib}: dh.param \
     127.0.0.1.crt ${TYPE_${cipher}}.crt ../${clib}/client ../${slib}/server
 	@echo '\n======== $@ ========'
 	LD_LIBRARY_PATH=/usr/local/lib/e${slib} \
 	    ../${slib}/server >${@:S/^run/server/}.out \
 	    -c ${TYPE_${cipher}}.crt -k ${TYPE_${cipher}}.key \
 	    -l ${cipher} \
+	    -p dh.param \
 	    127.0.0.1 0
 	LD_LIBRARY_PATH=/usr/local/lib/e${clib} \
 	    ../${clib}/client >${@:S/^run/client/}.out \

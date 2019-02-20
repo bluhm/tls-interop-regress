@@ -38,7 +38,8 @@ run-self-client-server: client server 127.0.0.1.crt
 CLEANFILES +=		127.0.0.1.{crt,key} \
 			ca.{crt,key,srl} fake-ca.{crt,key} \
 			{client,server}.{req,crt,key} \
-			{dsa,ec,gost,rsa}.{key,req,crt}
+			{dsa,ec,gost,rsa}.{key,req,crt} \
+			dh.param
 
 127.0.0.1.crt:
 	openssl req -batch -new \
@@ -58,6 +59,9 @@ client.req server.req:
 client.crt server.crt: ca.crt ${@:R}.req
 	openssl x509 -CAcreateserial -CAkey ca.key -CA ca.crt \
 	    -req -in ${@:R}.req -out $@
+
+dh.param:
+	openssl dhparam -out $@ 1024
 
 dsa.key:
 	openssl dsaparam -genkey -out $@ 2048
