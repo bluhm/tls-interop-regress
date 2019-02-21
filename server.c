@@ -125,8 +125,8 @@ main(int argc, char *argv[])
 	/* needed to use DHE cipher with libressl */
 	if (SSL_CTX_set_dh_auto(ctx, 1) <= 0)
 		err_ssl(1, "SSL_CTX_set_dh_auto");
-#else
-	/* needed to use ADH cipher with openssl */
+#endif
+	/* needed to use ADH, EDH, DHE cipher with openssl */
 	if (dhparam != NULL) {
 		DH *dh;
 		FILE *file;
@@ -141,7 +141,6 @@ main(int argc, char *argv[])
 			err_ssl(1, "SSL_CTX_set_tmp_dh");
 		fclose(file);
 	}
-#endif
 
 	/* needed when linking with OpenSSL 1.0.2p */
 	if (SSL_CTX_set_ecdh_auto(ctx, 1) <= 0)

@@ -63,7 +63,7 @@ LIBRARIES +=		openssl
 LIBRARIES +=		openssl11
 .endif
 
-CLEANFILES +=	*.tmp *.ciphers ciphers.mk
+CLEANFILES =	*.tmp *.ciphers ciphers.mk
 
 .for clib in ${LIBRARIES}
 client-${clib}.ciphers:
@@ -133,6 +133,13 @@ TYPE_${cipher} =	rsa
 TYPE_${cipher} =	127.0.0.1
 .endif
 
+.if "${slib}" == "openssl" && \
+    "${cipher:MADH-*}${cipher:MEDH-*}${cipher:MDHE-*}" != ""
+DHPARAM_${cipher}_${slib} =	-p dh.param
+.else
+DHPARAM_${cipher}_${slib} =
+.endif
+
 REGRESS_TARGETS +=	run-cipher-${cipher}-client-${clib}-server-${slib}
 run-cipher-${cipher}-client-${clib}-server-${slib} \
 client-cipher-${cipher}-client-${clib}-server-${slib}.out \
@@ -142,8 +149,7 @@ server-cipher-${cipher}-client-${clib}-server-${slib}.out: dh.param \
 	LD_LIBRARY_PATH=/usr/local/lib/e${slib} \
 	    ../${slib}/server >${@:S/^run/server/}.out \
 	    -c ${TYPE_${cipher}}.crt -k ${TYPE_${cipher}}.key \
-	    -l ${cipher}${LEVEL_${slib}} \
-	    -p dh.param \
+	    -l ${cipher}${LEVEL_${slib}} ${DHPARAM_${cipher}_${slib}} \
 	    127.0.0.1 0
 	LD_LIBRARY_PATH=/usr/local/lib/e${clib} \
 	    ../${clib}/client >${@:S/^run/client/}.out \
