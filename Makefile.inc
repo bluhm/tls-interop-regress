@@ -1,4 +1,4 @@
-# $OpenBSD: Makefile.inc,v 1.5 2018/11/11 00:15:04 bluhm Exp $
+# $OpenBSD: Makefile.inc,v 1.6 2019/02/21 23:06:33 bluhm Exp $
 
 .PATH:			${.CURDIR}/..
 
