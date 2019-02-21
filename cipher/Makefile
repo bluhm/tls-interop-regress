@@ -1,8 +1,58 @@
 # $OpenBSD$
 
-run-cipher-GOST2001-GOST89-GOST89-client-libressl-server-libressl:
+check-cipher-GOST2001-GOST89-GOST89-client-libressl-server-libressl:
 	# cipher GOST2012256-GOST89-GOST89 is used in out file
 	# TODO: figure out why it is not GOST2001
+	@echo DISABLED
+
+check-cipher-ADH-AES128-GCM-SHA256-client-openssl11-server-openssl11 \
+check-cipher-ADH-AES128-SHA-client-openssl11-server-openssl11 \
+check-cipher-ADH-AES128-SHA256-client-openssl11-server-openssl11 \
+check-cipher-ADH-AES256-GCM-SHA384-client-openssl11-server-openssl11 \
+check-cipher-ADH-AES256-SHA-client-openssl11-server-openssl11 \
+check-cipher-ADH-AES256-SHA256-client-openssl11-server-openssl11 \
+check-cipher-ADH-CAMELLIA128-SHA-client-openssl11-server-openssl11 \
+check-cipher-ADH-CAMELLIA128-SHA256-client-openssl11-server-openssl11 \
+check-cipher-ADH-CAMELLIA256-SHA-client-openssl11-server-openssl11 \
+check-cipher-ADH-CAMELLIA256-SHA256-client-openssl11-server-openssl11 \
+check-cipher-AECDH-AES128-SHA-client-openssl11-server-openssl11 \
+check-cipher-AECDH-AES256-SHA-client-openssl11-server-openssl11 \
+check-cipher-AES128-GCM-SHA256-client-openssl11-server-openssl11 \
+check-cipher-AES128-SHA-client-openssl11-server-openssl11 \
+check-cipher-AES128-SHA256-client-openssl11-server-openssl11 \
+check-cipher-AES256-GCM-SHA384-client-openssl11-server-openssl11 \
+check-cipher-AES256-SHA-client-openssl11-server-openssl11 \
+check-cipher-AES256-SHA256-client-openssl11-server-openssl11 \
+check-cipher-CAMELLIA128-SHA-client-openssl11-server-openssl11 \
+check-cipher-CAMELLIA128-SHA256-client-openssl11-server-openssl11 \
+check-cipher-CAMELLIA256-SHA-client-openssl11-server-openssl11 \
+check-cipher-CAMELLIA256-SHA256-client-openssl11-server-openssl11 \
+check-cipher-DHE-RSA-AES128-GCM-SHA256-client-openssl11-server-openssl11 \
+check-cipher-DHE-RSA-AES128-SHA-client-openssl11-server-openssl11 \
+check-cipher-DHE-RSA-AES128-SHA256-client-openssl11-server-openssl11 \
+check-cipher-DHE-RSA-AES256-GCM-SHA384-client-openssl11-server-openssl11 \
+check-cipher-DHE-RSA-AES256-SHA-client-openssl11-server-openssl11 \
+check-cipher-DHE-RSA-AES256-SHA256-client-openssl11-server-openssl11 \
+check-cipher-DHE-RSA-CAMELLIA128-SHA-client-openssl11-server-openssl11 \
+check-cipher-DHE-RSA-CAMELLIA128-SHA256-client-openssl11-server-openssl11 \
+check-cipher-DHE-RSA-CAMELLIA256-SHA-client-openssl11-server-openssl11 \
+check-cipher-DHE-RSA-CAMELLIA256-SHA256-client-openssl11-server-openssl11 \
+check-cipher-DHE-RSA-CHACHA20-POLY1305-client-openssl11-server-openssl11 \
+check-cipher-ECDHE-ECDSA-AES128-GCM-SHA256-client-openssl11-server-openssl11 \
+check-cipher-ECDHE-ECDSA-AES128-SHA-client-openssl11-server-openssl11 \
+check-cipher-ECDHE-ECDSA-AES128-SHA256-client-openssl11-server-openssl11 \
+check-cipher-ECDHE-ECDSA-AES256-GCM-SHA384-client-openssl11-server-openssl11 \
+check-cipher-ECDHE-ECDSA-AES256-SHA-client-openssl11-server-openssl11 \
+check-cipher-ECDHE-ECDSA-AES256-SHA384-client-openssl11-server-openssl11 \
+check-cipher-ECDHE-ECDSA-CHACHA20-POLY1305-client-openssl11-server-openssl11 \
+check-cipher-ECDHE-RSA-AES128-GCM-SHA256-client-openssl11-server-openssl11 \
+check-cipher-ECDHE-RSA-AES128-SHA-client-openssl11-server-openssl11 \
+check-cipher-ECDHE-RSA-AES128-SHA256-client-openssl11-server-openssl11 \
+check-cipher-ECDHE-RSA-AES256-GCM-SHA384-client-openssl11-server-openssl11 \
+check-cipher-ECDHE-RSA-AES256-SHA-client-openssl11-server-openssl11 \
+check-cipher-ECDHE-RSA-AES256-SHA384-client-openssl11-server-openssl11 \
+check-cipher-ECDHE-RSA-CHACHA20-POLY1305-client-openssl11-server-openssl11:
+	# openssl11 always prints TLS_AES_256_GCM_SHA384 as cipher in out file
 	@echo DISABLED
 
 LIBRARIES =		libressl
@@ -84,7 +134,9 @@ TYPE_${cipher} =	127.0.0.1
 .endif
 
 REGRESS_TARGETS +=	run-cipher-${cipher}-client-${clib}-server-${slib}
-run-cipher-${cipher}-client-${clib}-server-${slib}: dh.param \
+run-cipher-${cipher}-client-${clib}-server-${slib} \
+client-cipher-${cipher}-client-${clib}-server-${slib}.out \
+server-cipher-${cipher}-client-${clib}-server-${slib}.out: dh.param \
     127.0.0.1.crt ${TYPE_${cipher}}.crt ../${clib}/client ../${slib}/server
 	@echo '\n======== $@ ========'
 	LD_LIBRARY_PATH=/usr/local/lib/e${slib} \
@@ -97,11 +149,17 @@ run-cipher-${cipher}-client-${clib}-server-${slib}: dh.param \
 	    ../${clib}/client >${@:S/^run/client/}.out \
 	    -l ${cipher}${LEVEL_${clib}} \
 	    `sed -n 's/listen sock: //p' ${@:S/^run/server/}.out`
-	grep '^success$$' ${@:S/^run/server/}.out || \
-	    { sleep 1; grep '^success$$' ${@:S/^run/server/}.out; }
-	grep '^success$$' ${@:S/^run/client/}.out
-	grep ' Cipher *: ${cipher}$$' ${@:S/^run/server/}.out
-	grep ' Cipher *: ${cipher}$$' ${@:S/^run/client/}.out
+	grep -q '^success$$' ${@:S/^run/server/}.out || \
+	    { sleep 1; grep -q '^success$$' ${@:S/^run/server/}.out; }
+	grep -q '^success$$' ${@:S/^run/client/}.out
+
+REGRESS_TARGETS +=	check-cipher-${cipher}-client-${clib}-server-${slib}
+check-cipher-${cipher}-client-${clib}-server-${slib}: \
+    client-cipher-${cipher}-client-${clib}-server-${slib}.out \
+    server-cipher-${cipher}-client-${clib}-server-${slib}.out
+	@echo '\n======== $@ ========'
+	grep -q ' Cipher *: ${cipher}$$' ${@:S/^check/server/}.out
+	grep -q ' Cipher *: ${cipher}$$' ${@:S/^check/client/}.out
 
 .endfor
 .endfor
