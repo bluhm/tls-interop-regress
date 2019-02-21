@@ -126,6 +126,7 @@ main(int argc, char *argv[])
 	if (SSL_CTX_set_dh_auto(ctx, 1) <= 0)
 		err_ssl(1, "SSL_CTX_set_dh_auto");
 #else
+	/* needed to use ADH cipher with openssl */
 	if (dhparam != NULL) {
 		DH *dh;
 		FILE *file;
