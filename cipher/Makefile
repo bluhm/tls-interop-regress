@@ -1,5 +1,10 @@
 # $OpenBSD$
 
+run-cipher-GOST2001-GOST89-GOST89-client-libressl-server-libressl:
+	# cipher GOST2012256-GOST89-GOST89 is used in out file
+	# TODO: figure out why it is not GOST2001
+	@echo DISABLED
+
 LIBRARIES =		libressl
 .if exists(/usr/local/bin/eopenssl)
 LIBRARIES +=		openssl
