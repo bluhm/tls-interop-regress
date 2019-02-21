@@ -1,6 +1,6 @@
 /*	$OpenBSD: client.c,v 1.6 2019/02/11 12:22:44 bluhm Exp $	*/
 /*
- * Copyright (c) 2018 Alexander Bluhm <bluhm@openbsd.org>
+ * Copyright (c) 2018-2019 Alexander Bluhm <bluhm@openbsd.org>
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
