@@ -5,7 +5,7 @@
 SRCS_client =		client.c util.c
 SRCS_server =		server.c util.c
 WARNINGS =		yes
-CLEANFILES +=		*.out *.fstat
+CLEANFILES +=		*.out *.err
 
 .for p in ${PROGS}
 ldd-$p.out: $p
