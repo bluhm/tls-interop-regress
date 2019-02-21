@@ -18,14 +18,14 @@ CLEANFILES +=	*.tmp *.ciphers ciphers.mk
 .for clib in ${LIBRARIES}
 client-${clib}.ciphers:
 	LD_LIBRARY_PATH=/usr/local/lib/e${clib} \
-	    ../${clib}/client -L >$@.tmp
+	    ../${clib}/client -l ALL -L >$@.tmp
 	sed -n 's/^cipher //p' <$@.tmp | sort -u >$@
 	rm $@.tmp
 .endfor
 .for slib in ${LIBRARIES}
 server-${slib}.ciphers: 127.0.0.1.crt dsa.crt ec.crt rsa.crt
 	LD_LIBRARY_PATH=/usr/local/lib/e${slib} \
-	    ../${slib}/server -L >$@.tmp
+	    ../${slib}/server -l ALL -L >$@.tmp
 	sed -n 's/^cipher //p' <$@.tmp | sort -u >$@
 	rm $@.tmp
 .endfor
@@ -51,13 +51,17 @@ ciphers.mk:
 .endfor
 	mv $@.tmp $@
 
-# what a dirty hack to convert generated lists into usable make variables
+# hack to convert generated lists into usable make variables
 .if exists(ciphers.mk)
 .include "ciphers.mk"
 .else
 regress: ciphers.mk
 	${MAKE} -C ${.CURDIR} regress
 .endif
+
+LEVEL_libressl =
+LEVEL_openssl =
+LEVEL_openssl11 = ,@SECLEVEL=0
 
 .for clib in ${LIBRARIES}
 .for slib in ${LIBRARIES}
@@ -82,12 +86,12 @@ run-cipher-${cipher}-client-${clib}-server-${slib}: dh.param \
 	LD_LIBRARY_PATH=/usr/local/lib/e${slib} \
 	    ../${slib}/server >${@:S/^run/server/}.out \
 	    -c ${TYPE_${cipher}}.crt -k ${TYPE_${cipher}}.key \
-	    -l ${cipher} \
+	    -l ${cipher}${LEVEL_${slib}} \
 	    -p dh.param \
 	    127.0.0.1 0
 	LD_LIBRARY_PATH=/usr/local/lib/e${clib} \
 	    ../${clib}/client >${@:S/^run/client/}.out \
-	    -l ${cipher} \
+	    -l ${cipher}${LEVEL_${clib}} \
 	    `sed -n 's/listen sock: //p' ${@:S/^run/server/}.out`
 	grep '^success$$' ${@:S/^run/server/}.out || \
 	    { sleep 1; grep '^success$$' ${@:S/^run/server/}.out; }
