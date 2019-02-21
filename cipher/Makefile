@@ -34,8 +34,12 @@ server-${slib}.ciphers: 127.0.0.1.crt dsa.crt ec.crt rsa.crt
 .for slib in ${LIBRARIES}
 ciphers.mk: client-${clib}-server-${slib}.ciphers
 client-${clib}-server-${slib}.ciphers: \
-    client-${clib}.ciphers server-${slib}.ciphers
+    client-${clib}.ciphers server-${slib}.ciphers client-libressl.ciphers
+	# get ciphers shared between client and server
 	sort client-${clib}.ciphers server-${slib}.ciphers >$@.tmp
+	uniq -d <$@.tmp >$@
+	# we are only interested in cipers supported by libressl
+	sort $@ client-libressl.ciphers >$@.tmp
 	uniq -d <$@.tmp >$@
 	rm $@.tmp
 .endfor
