@@ -152,12 +152,12 @@ client-cipher-${cipher}-client-${clib}-server-${slib}.out \
 server-cipher-${cipher}-client-${clib}-server-${slib}.out: dh.param \
     127.0.0.1.crt ${TYPE_${cipher}}.crt ../${clib}/client ../${slib}/server
 	@echo '\n======== $@ ========'
-	LD_LIBRARY_PATH=/usr/local/lib/e${slib} \
+	LD_LIBRARY_PATH=/home/bluhm/openbsd/cvs/src/lib/libcrypto/obj:/home/bluhm/openbsd/cvs/src/lib/libssl/obj:/home/bluhm/openbsd/cvs/src/lib/libtls/obj \
 	    ../${slib}/server >${@:S/^run/server/}.out \
 	    -c ${TYPE_${cipher}}.crt -k ${TYPE_${cipher}}.key \
 	    -l ${cipher}${LEVEL_${slib}} ${DHPARAM_${cipher}_${slib}} \
 	    127.0.0.1 0
-	LD_LIBRARY_PATH=/usr/local/lib/e${clib} \
+	LD_LIBRARY_PATH=/home/bluhm/openbsd/cvs/src/lib/libcrypto/obj:/home/bluhm/openbsd/cvs/src/lib/libssl/obj:/home/bluhm/openbsd/cvs/src/lib/libtls/obj \
 	    ../${clib}/client >${@:S/^run/client/}.out \
 	    -l ${cipher}${LEVEL_${clib}} \
 	    `sed -n 's/listen sock: //p' ${@:S/^run/server/}.out`
