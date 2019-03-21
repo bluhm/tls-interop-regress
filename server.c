@@ -36,7 +36,7 @@ void __dead
 usage(void)
 {
 	fprintf(stderr, "usage: server [-Lsvv] [-C CA] [-c crt -k key] "
-	    "[-l cipers] [-p dhparam] [host port]\n");
+	    "[-l ciphers] [-p dhparam] [host port]\n");
 	exit(2);
 }
 

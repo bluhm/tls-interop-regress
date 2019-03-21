@@ -35,7 +35,7 @@ void __dead
 usage(void)
 {
 	fprintf(stderr, "usage: client [-Lsv] [-C CA] [-c crt -k key] "
-	    "[-l cipers] host port\n");
+	    "[-l ciphers] host port\n");
 	exit(2);
 }
 

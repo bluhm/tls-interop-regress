@@ -94,7 +94,7 @@ client-${clib}-server-${slib}.ciphers: \
 	# get ciphers shared between client and server
 	sort client-${clib}.ciphers server-${slib}.ciphers >$@.tmp
 	uniq -d <$@.tmp >$@
-	# we are only interested in cipers supported by libressl
+	# we are only interested in ciphers supported by libressl
 	sort $@ client-libressl.ciphers >$@.tmp
 	uniq -d <$@.tmp >$@
 	rm $@.tmp
