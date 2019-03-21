@@ -1,4 +1,4 @@
-# $OpenBSD: Makefile,v 1.1 2019/02/21 23:06:33 bluhm Exp $
+# $OpenBSD: Makefile,v 1.2 2019/03/21 17:52:26 bluhm Exp $
 
 # Connect a client to a server.  Both can be current libressl, or
 # openssl 1.0.2, or openssl 1.1.  Create lists of supported ciphers
