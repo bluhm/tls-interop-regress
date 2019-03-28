@@ -6,11 +6,6 @@
 # certificate with compatible type.  Check that client and server
 # have used correct cipher by grepping in their session print out.
 
-check-cipher-GOST2001-GOST89-GOST89-client-libressl-server-libressl:
-	# cipher GOST2012256-GOST89-GOST89 is used in out file
-	# TODO: figure out why it is not GOST2001
-	@echo DISABLED
-
 check-cipher-ADH-AES128-GCM-SHA256-client-openssl11-server-openssl11 \
 check-cipher-ADH-AES128-SHA-client-openssl11-server-openssl11 \
 check-cipher-ADH-AES128-SHA256-client-openssl11-server-openssl11 \
