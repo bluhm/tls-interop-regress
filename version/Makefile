@@ -51,11 +51,11 @@ server-version-${cver}-${sver}-${clib}-${slib}.out: \
 	grep -q '^success$$' ${@:S/^run/server/}.out || \
 	    { sleep 1; grep -q '^success$$' ${@:S/^run/server/}.out; }
 	grep -q '^success$$' ${@:S/^run/client/}.out
-.else
-	echo XXX
 .endif
 
-#REGRESS_TARGETS +=	check-version-${cver}-${sver}-${clib}-${slib}
+.if empty(${FAIL_${cver}_${sver}})
+
+REGRESS_TARGETS +=	check-version-${cver}-${sver}-${clib}-${slib}
 
 check-version-${cver}-${sver}-${clib}-${slib}: \
     client-version-${cver}-${sver}-${clib}-${slib}.out \
@@ -63,8 +63,28 @@ check-version-${cver}-${sver}-${clib}-${slib}: \
 	@echo '\n======== $@ ========'
 	@grep ' Protocol *: ' ${@:S/^check/client/}.out
 	@grep ' Protocol *: ' ${@:S/^check/server/}.out
-	grep -q ' Protocol *: ${cver:C/S/Sv/:C/_/./}$$' ${@:S/^check/client/}.out
-	grep -q ' Protocol *: ${sver:C/S/Sv/:C/_/./}$$' ${@:S/^check/server/}.out
+.if "${cver}" == any
+.if "${sver}" == any
+.if "${clib}" == openssl || "${slib}" == openssl
+	grep -q ' Protocol *: TLSv1.2$$' ${@:S/^check/client/}.out
+	grep -q ' Protocol *: TLSv1.2$$' ${@:S/^check/server/}.out
+.else
+	grep -q ' Protocol *: TLSv1.3$$' ${@:S/^check/client/}.out
+	grep -q ' Protocol *: TLSv1.3$$' ${@:S/^check/server/}.out
+.endif
+.else
+	grep -q ' Protocol *: ${sver:S/TLS/TLSv/:S/_/./}$$' \
+	    ${@:S/^check/client/}.out
+	grep -q ' Protocol *: ${sver:S/TLS/TLSv/:S/_/./}$$' \
+	    ${@:S/^check/server/}.out
+.endif
+.else
+	grep -q ' Protocol *: ${cver:S/TLS/TLSv/:S/_/./}$$' \
+	    ${@:S/^check/client/}.out
+	grep -q ' Protocol *: ${cver:S/TLS/TLSv/:S/_/./}$$' \
+	    ${@:S/^check/server/}.out
+.endif
+.endif
 
 .endif
 
