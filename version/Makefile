@@ -1,9 +1,10 @@
 # $OpenBSD$
 
 # Connect a client to a server.  Both can be current libressl, or
-# openssl 1.0.2, or openssl 1.1.  Pin client or server to a fixed
-# TLS version number.  Check that client and server have used
-# correct version by grepping in their session print out.
+# openssl 1.0.2, or openssl 1.1.  Pin client or server to a fixed TLS
+# version number.  Incompatible versions must fail.  Check that client 
+# and server have used correct version by grepping in their session
+# print out.
 
 LIBRARIES =		libressl
 .if exists(/usr/local/bin/eopenssl)
