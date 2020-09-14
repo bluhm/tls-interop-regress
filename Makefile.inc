@@ -2,8 +2,8 @@
 
 .PATH:			${.CURDIR}/..
 
-SRCS_client =		client.c util.c
-SRCS_server =		server.c util.c
+SRCS_client ?=		client.c util.c
+SRCS_server ?=		server.c util.c
 WARNINGS =		yes
 CLEANFILES +=		*.out *.fstat
 
