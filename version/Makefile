@@ -30,11 +30,11 @@ FAIL_${cver}_${sver} = !
 .if ("${clib}" != openssl && "${slib}" != openssl) || \
     ("${cver}" != TLS1_3 && "${sver}" != TLS1_3)
 
-REGRESS_TARGETS +=	run-version-${cver}-${sver}-${clib}-${slib}
+REGRESS_TARGETS +=	run-version-client-${clib}-${cver}-server-${slib}-${sver}
 
-run-version-${cver}-${sver}-${clib}-${slib} \
-client-version-${cver}-${sver}-${clib}-${slib}.out \
-server-version-${cver}-${sver}-${clib}-${slib}.out: \
+run-version-client-${clib}-${cver}-server-${slib}-${sver} \
+client-version-client-${clib}-${cver}-server-${slib}-${sver}.out \
+server-version-client-${clib}-${cver}-server-${slib}-${sver}.out: \
     127.0.0.1.crt ../${clib}/client ../${slib}/server
 	@echo '\n======== $@ ========'
 	LD_LIBRARY_PATH=/usr/local/lib/e${slib} \
@@ -55,11 +55,11 @@ server-version-${cver}-${sver}-${clib}-${slib}.out: \
 
 .if empty(${FAIL_${cver}_${sver}})
 
-REGRESS_TARGETS +=	check-version-${cver}-${sver}-${clib}-${slib}
+REGRESS_TARGETS +=	check-version-client-${clib}-${cver}-server-${slib}-${sver}
 
-check-version-${cver}-${sver}-${clib}-${slib}: \
-    client-version-${cver}-${sver}-${clib}-${slib}.out \
-    server-version-${cver}-${sver}-${clib}-${slib}.out
+check-version-client-${clib}-${cver}-server-${slib}-${sver}: \
+    client-version-client-${clib}-${cver}-server-${slib}-${sver}.out \
+    server-version-client-${clib}-${cver}-server-${slib}-${sver}.out
 	@echo '\n======== $@ ========'
 	@grep ' Protocol *: ' ${@:S/^check/client/}.out
 	@grep ' Protocol *: ' ${@:S/^check/server/}.out
