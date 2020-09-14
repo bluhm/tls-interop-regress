@@ -1,4 +1,4 @@
-# $OpenBSD$
+# $OpenBSD: Makefile,v 1.1 2020/09/14 00:51:04 bluhm Exp $
 
 # Connect a client to a server.  Both can be current libressl, or
 # openssl 1.0.2, or openssl 1.1.  Pin client or server to a fixed TLS
